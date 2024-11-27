@@ -1,0 +1,64 @@
+A personal resume highlighting academic achievements, professional experience, skills, and references.
+
+Yogesh's Resume
+
+Contact Information
+Name: Yogesh
+Phone: [Your Phone Number]
+Email: [Your Email Address]
+LinkedIn: [Your LinkedIn Profile]
+Location: [Your City, Country]
+
+Objective
+Passionate and results-driven entrepreneur with a strong background in technology, AI, and automation. Aiming to leverage my expertise in software development, business strategy, and team leadership to drive innovation and create meaningful solutions in the tech and startup ecosystem.
+
+Education
+Indian Institute of Technology (IIT), Bombay
+Bachelor of Technology (B.Tech) – [Graduation Year]
+Major: [Your Major]
+
+Cracked India's toughest exam, IIT JEE, to gain admission into IIT Bombay, India’s top engineering institution.
+Specialized in [Your Field of Specialization, e.g., Computer Science, Electrical Engineering, etc.].
+Professional Experience
+Founder & CEO – ScaleGood
+May 2024 – Present
+
+Spearheading the development of an AI-powered platform designed to automate business processes for small businesses, enabling the creation and management of autonomous AI agents without coding knowledge.
+Successfully transitioned from an AI agency to a B2B SaaS platform after identifying market demand for simplified automation solutions.
+Oversaw product development, business operations, fundraising, and customer acquisition strategies, with focus on AI agent marketplace creation.
+AI Developer – JustNapp
+January 2023 – April 2024
+
+Developed the initial version of JustNapp, a digital solution aimed at simplifying processes for businesses using AI tools.
+Worked on product architecture, algorithm development, and AI model training to support automation and AI-driven decision-making.
+Founder & CEO – Digital Marketing Agency
+March 2020 – December 2022
+
+Managed all aspects of the agency from client acquisition to campaign execution, focusing on SMEs and indie startups.
+Gained deep insights into small business behavior and the challenges they face in digital marketing.
+Software Engineer (Intern) – Accenture
+June 2019 – August 2019
+
+Worked on enterprise AI and automation projects, contributing to the design and development of AI solutions for large-scale clients.
+Gained hands-on experience in deploying machine learning models and automating business workflows.
+Skills
+Programming Languages: Python, JavaScript, HTML, CSS, SQL
+AI & ML: TensorFlow, PyTorch, Hugging Face, Llama, OpenAI APIs
+Technologies: Docker, Kubernetes, PostgreSQL, MongoDB
+Tools: Git, Jupyter, VS Code
+Soft Skills: Leadership, Strategic Planning, Problem Solving, Communication, Team Collaboration
+Achievements
+Successfully led the launch of ScaleGood, a marketplace platform for AI agents, after three successful prototype iterations.
+Cracked IIT JEE, gaining admission to IIT Bombay, one of India's most prestigious engineering institutes, without external coaching.
+Built and scaled a digital marketing agency, growing revenue year-on-year while handling end-to-end client relationships.
+References
+Himanshu – Co-founder, ScaleGood
+Email: [Himanshu's Email]
+Phone: [Himanshu's Phone Number]
+LinkedIn: [Himanshu's LinkedIn Profile]
+
+Professor [Name] – [Department Name], IIT Bombay
+Email: [Professor's Email]
+Phone: [Professor's Phone Number]
+
+This resume format highlights your academic achievements, professional experiences, technical skills, and references in a clear and concise manner. You can adjust the contact details, professional roles, and skills as per your actual experiences.

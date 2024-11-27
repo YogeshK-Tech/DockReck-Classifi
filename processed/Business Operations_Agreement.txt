@@ -1,0 +1,116 @@
+A vendor agreement for procuring raw materials, specifying delivery timelines, quality standards, and penalties for non-compliance.
+
+Vendor Agreement for Procuring Raw Materials
+This Vendor Agreement ("Agreement") is made and entered into on [Date], by and between:
+
+[Company Name], a [Corporation Type] incorporated under the laws of [Country/State], with its principal office located at [Company Address] ("Buyer").
+[Vendor Name], a [Corporation Type] incorporated under the laws of [Country/State], with its principal office located at [Vendor Address] ("Vendor").
+RECITALS
+WHEREAS, the Buyer intends to procure raw materials from the Vendor for [purpose/usage], and the Vendor agrees to supply the materials under the terms and conditions set forth in this Agreement;
+
+NOW, THEREFORE, in consideration of the mutual covenants and promises herein, the parties agree as follows:
+
+1. Scope of Agreement
+1.1 Products to be Supplied: The Vendor agrees to supply the following raw materials ("Products") to the Buyer:
+
+[List of Raw Materials]
+1.2 Quantity: The Vendor shall supply the Products in quantities specified by the Buyer as per the purchase orders issued from time to time.
+
+1.3 Specifications: The Products must meet the following quality standards and specifications:
+
+[Insert detailed quality standards, dimensions, material properties, and any industry certifications or standards to be met]
+2. Delivery and Timeline
+2.1 Delivery Schedule:
+
+The Vendor shall deliver the Products to the Buyer's facility located at [Address] or to such other locations as the Buyer may designate.
+Delivery shall occur as per the following schedule:
+[Specify timelines for initial deliveries, recurring deliveries, and deadlines for specific orders or products]
+The Vendor must notify the Buyer in writing at least [X] days in advance of any delays in delivery.
+2.2 Delivery Terms:
+
+The delivery shall be made according to the [Incoterms - EXW, CIF, FOB, etc.], and all associated shipping costs, including taxes and duties, shall be borne by the Vendor unless otherwise specified in writing.
+The Products shall be delivered in [properly packaged, labeled, and documented] condition as per the specifications.
+2.3 Risk of Loss:
+
+Risk of loss shall transfer from the Vendor to the Buyer upon [delivery to the Buyer’s facility/completion of shipping, etc.].
+3. Payment Terms
+3.1 Price:
+
+The price for the Products shall be as agreed upon in the purchase order issued by the Buyer.
+[State whether pricing is fixed or variable, including any applicable taxes, fees, and currency].
+3.2 Payment Method:
+
+Payments shall be made by the Buyer via [bank transfer, cheque, etc.].
+The Buyer will make payment within [X] days from the date of invoice. Late payments will be subject to interest at a rate of [X%] per month.
+4. Quality Control and Inspection
+4.1 Quality Standards:
+
+The Vendor agrees that the Products shall meet the following quality standards:
+[Detailed quality control criteria]
+[Testing, certification, and inspection requirements]
+4.2 Inspection and Acceptance:
+
+The Buyer reserves the right to inspect the Products at any time before or after delivery. If any Product does not meet the agreed-upon specifications, the Buyer may reject the Product, and the Vendor shall, at their own cost, either replace or repair the defective Product within [X] days.
+Rejected Products shall be returned to the Vendor at the Vendor's expense.
+4.3 Non-Conformance:
+
+If the Products consistently fail to meet quality standards, the Buyer may terminate this Agreement by providing [X] days' notice.
+5. Penalties for Non-Compliance
+5.1 Late Delivery Penalty:
+
+If the Vendor fails to deliver the Products within the agreed-upon timeline, the Vendor will incur a penalty of [X%] of the total order value for each [day/week] of delay.
+If the delay exceeds [X] weeks, the Buyer may, at its discretion, cancel the order or terminate this Agreement.
+5.2 Quality Non-Compliance Penalty:
+
+If any Product fails to meet the required quality standards upon inspection, the Vendor will bear the cost of returning the defective Products and supplying replacements.
+Additionally, a penalty of [X%] of the total value of the affected order will be charged for each instance of non-compliance.
+5.3 Failure to Meet Supply Requirements:
+
+If the Vendor is unable to supply the required quantity of Products within the agreed timelines, the Buyer may source the Products from other suppliers and hold the Vendor responsible for any additional costs incurred.
+6. Confidentiality
+6.1 Confidential Information:
+
+The Vendor agrees to keep any confidential information disclosed by the Buyer, including product specifications, pricing, and business operations, strictly confidential and not disclose it to any third party without prior written consent.
+7. Term and Termination
+7.1 Term:
+
+This Agreement shall commence on the effective date and remain in effect for [X years/months] unless terminated earlier as per the conditions outlined in this section.
+7.2 Termination for Convenience:
+
+Either party may terminate this Agreement for any reason by providing [X] days' written notice to the other party.
+7.3 Termination for Cause:
+
+Either party may terminate this Agreement if the other party breaches any material term of this Agreement and fails to cure the breach within [X] days after receiving written notice of the breach.
+8. Force Majeure
+8.1 Force Majeure Events:
+
+Neither party shall be held liable for any delay or failure in performance caused by circumstances beyond their reasonable control, including natural disasters, strikes, or government restrictions.
+The affected party must notify the other party in writing within [X] days of such an event.
+9. Governing Law and Dispute Resolution
+9.1 Governing Law:
+
+This Agreement shall be governed by and construed in accordance with the laws of [Country/State].
+9.2 Dispute Resolution:
+
+Any disputes arising under this Agreement shall be resolved through [mediation, arbitration, or litigation] in the courts of [jurisdiction].
+10. Miscellaneous
+10.1 Amendments:
+
+This Agreement may only be amended by written consent of both parties.
+10.2 Entire Agreement:
+
+This Agreement constitutes the entire understanding between the parties and supersedes all prior agreements or understandings, whether written or oral.
+IN WITNESS WHEREOF, the parties have executed this Vendor Agreement as of the date first above written.
+For Buyer:
+[Name]
+[Title]
+[Company Name]
+[Signature]
+[Date]
+
+For Vendor:
+[Name]
+[Title]
+[Vendor Name]
+[Signature]
+[Date]

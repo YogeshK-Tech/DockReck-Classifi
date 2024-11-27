@@ -1,0 +1,105 @@
+/* Import the Poppins font */
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap");
+
+/* Apply the Poppins font globally within the component */
+:root {
+  font-family: "Poppins", sans-serif;
+}
+
+/* Main container styling */
+.container {
+  padding: 20px;
+  background-color: #ffffff; /* Light gray background */
+  height: 100vh; /* Full viewport height */
+  display: flex;
+  justify-content: top;
+  text-align: center;
+  flex-direction: column;
+  font-family: "Poppins", sans-serif; /* Use Poppins font */
+  position: relative;
+  overflow: hidden;
+}
+
+/* Image styling */
+.uploadImage {
+  display: block;
+  margin: 0 auto 20px;
+  width: 100px;
+  height: 70px;
+  object-fit: contain;
+}
+
+/* Heading styling */
+.heading {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: #212529; /* Dark text */
+  margin-bottom: 20px;
+}
+
+/* Description styling */
+.description {
+  font-size: 1.125rem; /* Slightly larger text for the paragraph */
+  color: #495057; /* Muted gray text */
+  margin-bottom: 30px;
+  margin-top: 30px;
+}
+
+/* Button container */
+.buttonContainer {
+  display: flex;
+  gap: 15px; /* Spacing between buttons */
+  justify-content: center;
+}
+
+/* Primary button */
+.primaryButton {
+  background-color: #031633; /* Bootstrap primary blue */
+  color: #fff;
+  font-size: 1.5rem;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  transition: all 0.3s ease;
+  height: 100px;
+  width: 300px;
+  font-weight: 600;
+}
+
+.primaryButton:hover {
+  background-color: #0056b3; /* Darker blue on hover */
+}
+
+/* Drag-and-drop styles */
+.dragAndDrop {
+  margin-top: 30px;
+  color: #6c757d;
+}
+
+/* Existing styles... */
+
+/* Drag message overlay */
+.dragMessage {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.6); /* Semi-transparent overlay */
+  color: #fff;
+  font-size: 1.5rem;
+  font-weight: 600;
+  z-index: 10; /* Ensure it's above everything */
+  pointer-events: none; /* Allow drag-and-drop events to pass through */
+}
+
+/* Upload status message */
+.uploadStatus {
+  margin-top: 20px;
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: #007bff; /* Bootstrap primary color */
+}

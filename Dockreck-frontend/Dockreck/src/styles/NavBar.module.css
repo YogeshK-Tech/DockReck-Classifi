@@ -1,0 +1,51 @@
+/* NavBar.module.css */
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap");
+/* General navbar styling */
+.header {
+  background-color: #031633; /* Black background */
+  padding: 15px;
+}
+
+/* Anchor tag (link) styling inside navbar */
+.header a {
+  color: #fff; /* White text */
+  text-decoration: none;
+  font-weight: 800;
+}
+
+/* Active link styling */
+.navLinkActive {
+  background-color: #1a1a1a; /* Slightly lighter black for active button */
+  color: #fff; /* White text */
+  border-radius: 5px; /* Rounded corners for active links */
+}
+
+/* Default nav link styling */
+.navLink {
+  color: #ddd; /* Light gray for non-active links */
+  margin: 0 10px; /* Add spacing between buttons */
+  padding: 10px 15px; /* Add padding to make buttons larger */
+  transition: all 0.3s ease; /* Smooth hover effect */
+}
+
+/* Hover effect for nav links */
+.navLink:hover {
+  color: #fff; /* Change to white on hover */
+  background-color: #333; /* Dark gray background on hover */
+  border-radius: 5px;
+}
+
+/* Center the nav pills */
+.nav {
+  display: flex;
+  justify-content: center; /* Center the buttons horizontally */
+  align-items: center; /* Vertically center the buttons */
+  margin-right: 500px;
+}
+
+/* Logo (if any) */
+.logo {
+  color: #fff; /* Ensure logo text is visible */
+  margin-right: auto; /* Keep logo to the left */
+  margin-left: 60px;
+}

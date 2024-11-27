@@ -1,0 +1,89 @@
+A workflow process document for onboarding new employees, detailing steps like IT setup, policy orientation, and role-specific training.
+
+Workflow Process Document for Employee Onboarding
+Document Version: 1.0
+Date: [Insert Date]
+Prepared By: [Your Name]
+
+Objective
+This document outlines the structured process for onboarding new employees to ensure a seamless and productive integration into the organization.
+
+1. Pre-Onboarding (Before the First Day)
+Steps:
+HR Communication:
+
+Send a welcome email with details on the start date, reporting time, and dress code.
+Attach any pre-joining forms or documents to be filled out.
+IT Setup:
+
+Create an email account and provide login credentials.
+Set up necessary hardware (laptop/desktop, accessories) and software tools.
+Assign access permissions to relevant systems and applications.
+Workspace Preparation:
+
+Allocate a workstation or ensure remote setup readiness.
+Provide office supplies and team welcome kits (e.g., company merchandise, stationery).
+2. Orientation Day (First Day)
+Steps:
+Welcome Session:
+
+Greet the new employee and provide a quick office or virtual tour.
+Introduce them to their team and immediate supervisor.
+HR Policy Orientation:
+
+Review company policies, code of conduct, and employee handbook.
+Discuss work hours, leave policies, and benefits.
+IT Walkthrough:
+
+Guide the employee on using email, communication tools (e.g., Slack, Teams), and collaboration platforms (e.g., Google Workspace, SharePoint).
+Administrative Tasks:
+
+Collect signed forms and documents (e.g., tax forms, identification).
+Issue ID cards, parking permits, or access keys.
+3. Training Phase (Week 1)
+Steps:
+Role-Specific Training:
+
+Assign a mentor or buddy to guide the new hire.
+Provide training on tools, processes, and responsibilities specific to the role.
+Company Overview:
+
+Arrange sessions with leadership to share the company’s mission, vision, and goals.
+Educate on interdepartmental functions and collaboration methods.
+Performance Expectations:
+
+Discuss key performance indicators (KPIs) and goals for the probation period.
+4. Integration Phase (Weeks 2-4)
+Steps:
+Ongoing Check-Ins:
+
+Schedule weekly meetings with the supervisor to address questions and progress.
+Solicit feedback on the onboarding experience.
+Team Bonding:
+
+Encourage participation in team meetings and informal activities.
+Introduce project assignments to immerse the new employee in workflows.
+Skill Development:
+
+Enroll in additional training programs, if applicable.
+Provide resources for self-paced learning (e.g., e-learning portals).
+5. Completion of Onboarding (End of Month 1)
+Steps:
+Feedback Collection:
+
+Conduct an onboarding survey to understand the new employee's experience.
+Use feedback to refine the onboarding process.
+Performance Review:
+
+Review probationary progress and discuss future objectives.
+Transition to Regular Work:
+
+Ensure the employee is fully integrated into their team and projects.
+Confirm access to all required tools and resources.
+6. Roles and Responsibilities
+HR Team:
+Prepare documentation, ensure policy orientation, and collect necessary forms.
+IT Team:
+Manage technical setup and system access.
+Supervisor:
+Oversee role-specific training, set expectations, and provide mentorship.

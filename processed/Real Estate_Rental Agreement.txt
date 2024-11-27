@@ -1,0 +1,82 @@
+A rental agreement template covering terms such as rent payment schedules, maintenance responsibilities, and conditions for lease termination.
+
+Rental Agreement Template
+
+This Rental Agreement ("Agreement") is made and entered into this [Insert Date] by and between:
+
+Landlord:
+Name: [Landlord's Full Name]
+Address: [Landlord's Address]
+Phone: [Landlord's Phone Number]
+
+Tenant:
+Name: [Tenant's Full Name]
+Address: [Tenant's Address]
+Phone: [Tenant's Phone Number]
+
+Property:
+Address: [Rental Property Address]
+
+1. Term of Lease
+The term of this lease shall commence on [Start Date] and shall terminate on [End Date], unless extended or terminated in accordance with the terms of this Agreement.
+
+2. Rent Payment
+Amount: The monthly rent shall be [Insert Rent Amount] payable to the Landlord.
+Due Date: Rent is due on the [Insert Due Date] of each month.
+Payment Method: Rent payments shall be made via [Insert Payment Method(s)].
+Late Fees: If the rent is not paid within [Insert Grace Period] days after the due date, a late fee of [Insert Late Fee Amount] will be charged.
+3. Security Deposit
+The Tenant agrees to pay a security deposit of [Insert Amount] to the Landlord at the time of signing this Agreement. This deposit will be returned to the Tenant, minus any deductions for damages or unpaid rent, within [Insert Number of Days] days after the end of the lease term.
+
+4. Maintenance Responsibilities
+Landlord's Responsibilities: The Landlord is responsible for ensuring that the property is habitable and maintains essential services such as plumbing, electrical systems, and heating.
+Tenant's Responsibilities: The Tenant agrees to maintain the property in a clean and sanitary condition. The Tenant is responsible for minor repairs and upkeep of the premises, including:
+Replacing light bulbs and batteries in smoke detectors.
+Routine cleaning and maintenance of appliances.
+Reporting any significant maintenance issues to the Landlord in a timely manner.
+Landlord's Approval for Repairs: Any repairs that exceed [Insert Amount] must be approved by the Landlord before the Tenant arranges for such repairs.
+
+5. Use of Property
+The Tenant agrees to use the property exclusively for residential purposes. The Tenant shall not engage in any unlawful activities on the premises or cause disturbances to neighbors. Subletting of the property is not permitted without the written consent of the Landlord.
+
+6. Pets
+[Select Option: "No pets are allowed on the property." OR "Pets are allowed with prior written consent from the Landlord. If pets are allowed, the Tenant agrees to pay a pet deposit of [Insert Pet Deposit Amount] and follow any applicable pet rules."]
+
+7. Utilities
+The Tenant is responsible for paying the following utilities:
+
+[Insert utilities the Tenant is responsible for, e.g., electricity, water, internet, etc.]
+The Landlord is responsible for paying the following utilities:
+
+[Insert utilities the Landlord is responsible for, e.g., trash removal, heating, etc.]
+8. Alterations
+The Tenant shall not make any alterations to the property, including painting, remodeling, or installing fixtures, without prior written consent from the Landlord. Any alterations made without consent may result in penalties or the Tenant being required to restore the property to its original condition.
+
+9. Insurance
+The Tenant is strongly encouraged to obtain renters' insurance to cover their personal belongings, as the Landlord’s insurance does not cover personal property in case of damage or loss.
+
+10. Lease Termination
+Early Termination: Either party may terminate the lease early with [Insert Notice Period] written notice. The Tenant will be responsible for paying rent until the end of the notice period, unless otherwise agreed.
+Failure to Pay Rent: If the Tenant fails to pay rent for [Insert Number of Days] days after the due date, the Landlord may terminate the lease and initiate eviction proceedings.
+End of Lease: Upon the expiration of the lease term, the Tenant agrees to vacate the premises and return all keys, access devices, and any other property belonging to the Landlord. The Tenant must leave the property in the same condition as when it was first rented, minus reasonable wear and tear.
+11. Dispute Resolution
+Any disputes arising from this Agreement shall be resolved through [Insert dispute resolution process, such as mediation, arbitration, or small claims court].
+
+12. Miscellaneous
+Governing Law: This Agreement shall be governed by the laws of [Insert Jurisdiction].
+Notices: Any notice required under this Agreement shall be in writing and delivered by [Insert delivery method, e.g., mail, email, or in person].
+Signatures
+Landlord:
+Signature: ____________________________
+Date: _______________________________
+
+Tenant:
+Signature: ____________________________
+Date: _______________________________
+
+Witness (Optional)
+Witness Name: ________________________
+Witness Signature: ____________________
+Date: ________________________________
+
+This rental agreement provides a comprehensive overview of key terms and responsibilities for both parties involved in a tenancy. It is important for both the landlord and tenant to review these terms carefully and seek legal advice if necessary before signing.

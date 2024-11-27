@@ -1,0 +1,71 @@
+A non-disclosure agreement (NDA) tailored for a software development project, including clauses to protect source code, algorithms, and trade secrets, along with penalties for unauthorized disclosures.
+
+Non-Disclosure Agreement (NDA)
+This Non-Disclosure Agreement ("Agreement") is entered into as of [Date] by and between:
+
+Disclosing Party: [Company Name], having its principal place of business at [Address], and
+Receiving Party: [Name/Entity], with a principal place of business at [Address].
+Collectively referred to as the “Parties.”
+
+1. Purpose
+The Disclosing Party intends to disclose certain confidential information relating to a software development project (“Purpose”), which includes but is not limited to source code, algorithms, designs, processes, and trade secrets, to the Receiving Party. The Receiving Party agrees to maintain the confidentiality of such information as per the terms of this Agreement.
+
+2. Definition of Confidential Information
+2.1. "Confidential Information" includes, without limitation:
+
+Source code, object code, and programming methodologies.
+Algorithms, software architectures, and proprietary frameworks.
+Product designs, prototypes, and specifications.
+Business strategies, financial plans, and project roadmaps.
+Trade secrets, customer data, and supplier/vendor information.
+2.2. Exclusions from Confidential Information:
+
+Information that is publicly available at the time of disclosure.
+Information already in the Receiving Party’s possession without obligation of confidentiality.
+Information independently developed by the Receiving Party without reference to or use of the Disclosing Party’s Confidential Information.
+Information required to be disclosed by law, provided that the Receiving Party notifies the Disclosing Party promptly before disclosure.
+3. Obligations of Receiving Party
+The Receiving Party agrees to:
+3.1. Use the Confidential Information solely for the Purpose.
+3.2. Restrict access to the Confidential Information to its employees, contractors, or agents who need access to fulfill the Purpose and are bound by confidentiality obligations.
+3.3. Protect the Confidential Information using the same degree of care as it uses to protect its own confidential information, but no less than reasonable care.
+3.4. Not disclose, reproduce, or reverse-engineer any part of the Confidential Information without prior written consent from the Disclosing Party.
+
+4. Return or Destruction of Information
+Upon termination of this Agreement or upon written request from the Disclosing Party, the Receiving Party shall promptly:
+
+Return all tangible materials containing Confidential Information, or
+Destroy all such materials and provide written certification of destruction to the Disclosing Party.
+5. Ownership of Intellectual Property
+5.1. All Confidential Information remains the sole property of the Disclosing Party.
+5.2. No licenses or rights to use any Confidential Information are granted to the Receiving Party except as explicitly stated in this Agreement.
+
+6. Term and Termination
+6.1. This Agreement is effective as of the date of execution and will remain in effect for [Duration, e.g., 3 years] from the date of disclosure of Confidential Information.
+6.2. The obligations of confidentiality and non-use survive termination for a period of [e.g., 5 years].
+
+7. Penalties for Unauthorized Disclosure
+The Receiving Party acknowledges that any unauthorized use or disclosure of Confidential Information may cause irreparable harm to the Disclosing Party. In such cases:
+7.1. The Disclosing Party may seek injunctive relief and/or monetary damages.
+7.2. The Receiving Party agrees to indemnify the Disclosing Party for any losses, including legal fees, arising from a breach of this Agreement.
+
+8. Governing Law and Dispute Resolution
+8.1. This Agreement shall be governed by the laws of [State/Country].
+8.2. Any disputes arising out of or relating to this Agreement shall be resolved through arbitration in [City/State], with each Party bearing its own costs.
+
+9. Entire Agreement
+This Agreement constitutes the entire understanding between the Parties and supersedes all prior agreements, whether written or oral, relating to the subject matter herein.
+
+Signed and Agreed:
+
+Disclosing Party:
+[Name]
+[Title]
+[Signature]
+[Date]
+
+Receiving Party:
+[Name]
+[Title]
+[Signature]
+[Date]
