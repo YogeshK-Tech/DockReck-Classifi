@@ -1,130 +1,126 @@
 import os
 from transformers import DistilBertTokenizer, DistilBertForSequenceClassification
-from transformers import Trainer, TrainingArguments
 from datasets import Dataset
 import torch
-import torch.nn as nn
+from torch.utils.data import DataLoader
 
-# Path to the folder containing your text files
-processed_folder = 'processed'
+# Define paths
+PROCESSED_FOLDER = 'processed'
 
-# Load the tokenizer
+# Load pre-trained model and tokenizer from Hugging Face
 tokenizer = DistilBertTokenizer.from_pretrained('distilbert-base-uncased')
+model = DistilBertForSequenceClassification.from_pretrained('distilbert-base-uncased')
 
-# Function to load the dataset from text files
-def load_data(processed_folder):
-    texts = []
+# Create a classifier variable that can be imported
+classifier = model
+
+# Load training data
+def load_training_data():
+    data = []
     labels = []
+    
+    # Create a dictionary to map labels to numerical indices
+    label_map = {}
 
-    for filename in os.listdir(processed_folder):
-        if filename.endswith(".txt"):
-            # Extract category and subcategory from filename
-            category, subcategory = filename.rsplit('.', 1)[0].split('_')
-            # Read the content of the text file with explicit encoding
-            try:
-                with open(os.path.join(processed_folder, filename), 'r', encoding='utf-8') as file:
-                    text = file.read()
-                texts.append(text)
-                labels.append((category, subcategory))  # Store as tuple of category and subcategory
-            except UnicodeDecodeError as e:
-                print(f"Error reading {filename}: {e}")
+    for filename in os.listdir(PROCESSED_FOLDER):
+        if filename.endswith('.txt'):
+            category, subcategory = filename.replace('.txt', '').split('_')
+            file_path = os.path.join(PROCESSED_FOLDER, filename)
 
-    # Convert to a HuggingFace Dataset
-    dataset = Dataset.from_dict({
-        'text': texts,
-        'category': [label[0] for label in labels],
-        'subcategory': [label[1] for label in labels]
-    })
-    return dataset
+            # Read content from file
+            with open(file_path, 'r', encoding='utf-8') as f:
+                content = f.read().strip()
 
-# Load the dataset
-dataset = load_data(processed_folder)
+            # Generate label (category_subcategory) and add to data
+            label = f"{category}_{subcategory}"
+            data.append(content)
 
-# Tokenize the dataset
-def tokenize_function(examples):
-    return tokenizer(examples['text'], padding="max_length", truncation=True)
+            # Add to label_map if not already present
+            if label not in label_map:
+                label_map[label] = len(label_map)
 
-tokenized_datasets = dataset.map(tokenize_function, batched=True)
-
-# Prepare the model: DistilBERT for multi-output sequence classification
-num_categories = len(set(dataset['category']))  # Number of unique categories
-num_subcategories = len(set(dataset['subcategory']))  # Number of unique subcategories
-
-# Custom DistilBERT model with two separate classification heads
-class DistilBertMultiOutputForSequenceClassification(DistilBertForSequenceClassification):
-    def __init__(self, config, num_categories, num_subcategories):
-        super().__init__(config)
-        self.category_classifier = nn.Linear(config.hidden_size, num_categories)
-        self.subcategory_classifier = nn.Linear(config.hidden_size, num_subcategories)
-
-    def forward(self, input_ids=None, attention_mask=None, labels=None, **kwargs):
-        outputs = super().forward(input_ids=input_ids, attention_mask=attention_mask, labels=None, **kwargs)
-        hidden_state = outputs[0]  # Directly use the outputs for classification (logits)
-
-        category_logits = self.category_classifier(hidden_state[:, 0, :])  # Using [CLS] token for classification
-        subcategory_logits = self.subcategory_classifier(hidden_state[:, 0, :])
-
-        return (category_logits, subcategory_logits)
-
-# Load the model
-model = DistilBertMultiOutputForSequenceClassification.from_pretrained(
-    'distilbert-base-uncased',
-    num_categories=num_categories,
-    num_subcategories=num_subcategories
-)
+            labels.append(label_map[label])
+    
+    return data, labels, label_map
 
 # Prepare the dataset for training
-train_dataset = tokenized_datasets
+def prepare_data_for_training(data, labels):
+    dataset = Dataset.from_dict({'text': data, 'label': labels})
+    return dataset
 
-# Define the loss function
-def compute_loss(model, inputs, return_outputs=False):
-    # Forward pass
-    category_logits, subcategory_logits = model(**inputs)
+# Tokenize the data
+def tokenize_function(examples):
+    return tokenizer(examples['text'], padding='max_length', truncation=True, max_length=512)
 
-    # Create labels
-    category_labels = inputs.get("category")
-    subcategory_labels = inputs.get("subcategory")
+# Classify a single document (used in the Flask app)
+def classify_document(text):
+    # Tokenize the input text
+    inputs = tokenizer(text, return_tensors='pt', padding=True, truncation=True, max_length=512)
+    
+    # Move model and input to GPU if available (optional)
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    classifier.to(device)
+    inputs = {key: value.to(device) for key, value in inputs.items()}
 
-    # Compute loss for both outputs
-    category_loss = nn.CrossEntropyLoss()(category_logits, category_labels)
-    subcategory_loss = nn.CrossEntropyLoss()(subcategory_logits, subcategory_labels)
+    # Make prediction
+    with torch.no_grad():
+        outputs = classifier(**inputs)
+    
+    # Get the predicted class index
+    prediction_idx = outputs.logits.argmax(dim=-1).item()
 
-    # Combine the losses
-    total_loss = category_loss + subcategory_loss
-    return (total_loss, (category_logits, subcategory_logits)) if return_outputs else total_loss
+    # Map the predicted index to category and subcategory
+    data, labels, label_map = load_training_data()  # re-load to access label_map
+    reversed_label_map = {v: k for k, v in label_map.items()}
+    predicted_label = reversed_label_map[prediction_idx]
+    category, subcategory = predicted_label.split("_")
+    
+    return category, subcategory
 
-# Define training arguments
-training_args = TrainingArguments(
-    output_dir='./results',            # output directory
-    num_train_epochs=3,                # number of training epochs
-    per_device_train_batch_size=8,     # batch size per device during training
-    logging_dir='./logs',              # directory for storing logs
-    logging_steps=10,                  # number of steps before logging
-)
+# Train the model (if necessary)
+def train_model():
+    data, labels, label_map = load_training_data()
+    dataset = prepare_data_for_training(data, labels)
+    
+    # Number of unique labels
+    num_labels = len(label_map)
 
-# Define Trainer
-trainer = Trainer(
-    model=model,
-    args=training_args,
-    train_dataset=train_dataset,
-      # Specify custom loss function
-)
+    # Initialize the model with the correct number of labels
+    model = DistilBertForSequenceClassification.from_pretrained('distilbert-base-uncased', num_labels=num_labels)
 
-# Train the model
-trainer.train()
+    # Split the data into training and validation sets
+    train_dataset, val_dataset = dataset.train_test_split(test_size=0.1).values()
 
-# Save the model and tokenizer after training
-model.save_pretrained('distilbert-classifier')
-tokenizer.save_pretrained('distilbert-classifier')
+    # Apply tokenization
+    train_dataset = train_dataset.map(tokenize_function, batched=True)
+    val_dataset = val_dataset.map(tokenize_function, batched=True)
 
-# Inference function using the trained model
-from transformers import pipeline
+    # Set format for PyTorch
+    train_dataset.set_format(type='torch', columns=['input_ids', 'attention_mask', 'label'])
+    val_dataset.set_format(type='torch', columns=['input_ids', 'attention_mask', 'label'])
 
-# Load the trained model and tokenizer for inference
-classifier = pipeline('text-classification', model='distilbert-classifier', tokenizer='distilbert-classifier')
+    # Initialize Trainer
+    from transformers import Trainer, TrainingArguments
 
-# Example of classifying a new document
-doc_text = "This is a new document that needs classification."
-predictions = classifier(doc_text)
+    training_args = TrainingArguments(
+        output_dir='./results',          # output directory
+        evaluation_strategy="epoch",     # evaluation strategy to adopt during training
+        learning_rate=2e-5,              # learning rate
+        per_device_train_batch_size=16,  # batch size for training
+        per_device_eval_batch_size=64,   # batch size for evaluation
+        num_train_epochs=3,              # number of training epochs
+        weight_decay=0.01,               # strength of weight decay
+    )
 
-print("Predictions:", predictions)
+    trainer = Trainer(
+        model=model,                         # the instantiated 🤗 Transformers model to be trained
+        args=training_args,                  # training arguments, defined above
+        train_dataset=train_dataset,         # training dataset
+        eval_dataset=val_dataset             # evaluation dataset
+    )
+
+    # Train the model
+    trainer.train()
+
+if __name__ == "__main__":
+    train_model()

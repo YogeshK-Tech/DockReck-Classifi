@@ -3,7 +3,9 @@ from flask_cors import CORS
 import os
 from werkzeug.utils import secure_filename
 from extract_text import extract_text_from_file
-from classify import classifier, classify_document  # Import the classifier
+from google_auth_oauthlib.flow import InstalledAppFlow
+from classify import classifier, classify_document
+from librarymodule import SCOPES  # Import the classifier
 
 app = Flask(__name__)
 CORS(app)
@@ -81,6 +83,33 @@ def update_label():
     doc['subcategory'] = data['subcategory']
 
     return jsonify({"message": "Document updated successfully.", "document": doc}), 200
+
+@app.route('/authorize')
+def authorize():
+    flow = InstalledAppFlow.from_client_secrets_file(
+        'credentials.json', SCOPES)
+    flow.redirect_uri = 'http://localhost:5000/oauth2callback'
+    authorization_url, state = flow.authorization_url(
+        access_type='offline',
+        include_granted_scopes='true'
+    )
+    return jsonify({"auth_url": authorization_url})
+
+
+
+@app.route('/oauth2callback')
+def oauth2callback():
+    flow = InstalledAppFlow.from_client_secrets_file(
+        'credentials.json', SCOPES)
+    flow.redirect_uri = 'http://localhost:5000/oauth2callback'
+    authorization_response = request.url
+    flow.fetch_token(authorization_response=authorization_response)
+
+    credentials = flow.credentials
+    with open('token.json', 'w') as token_file:
+        token_file.write(credentials.to_json())
+
+    return jsonify({"message": "Authentication successful!"})
 
 if __name__ == "__main__":
     os.makedirs(UPLOAD_FOLDER, exist_ok=True)

@@ -6,6 +6,7 @@ import App from "./App.jsx";
 import "bootstrap/dist/css/bootstrap.min.css";
 import MainComp from "./components/MainComp.jsx";
 import CategoryComp from "./components/CategoryComp.jsx";
+import LibraryComp from "./components/LibraryComp.jsx";
 
 const router = createBrowserRouter([
   {
@@ -23,6 +24,10 @@ const router = createBrowserRouter([
       {
         path: "/classification",
         element: <CategoryComp />,
+      },
+      {
+        path: "/library",
+        element: <LibraryComp />,
       },
     ],
   },
