@@ -59,9 +59,19 @@ const CategoryComp = () => {
     }
   };
 
-  const handleSaveToLibrary = () => {
-    // Placeholder for saving the entire collection to a library
-    alert("Save to Library functionality coming soon!");
+  const handleSaveToLibrary = async () => {
+    fetch("http://127.0.0.1:5000/save_todrive", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        /* relevant data */
+      }),
+    })
+      .then((response) => response.json())
+      .then((data) => console.log("Success:", data))
+      .catch((error) => console.error("Error:", error));
   };
 
   if (loading) {

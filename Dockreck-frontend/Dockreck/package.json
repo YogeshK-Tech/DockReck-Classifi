@@ -2,6 +2,7 @@
   "name": "dockreck-frontend",
   "private": true,
   "version": "0.0.0",
+  "proxy": "http://127.0.0.1:5000",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -14,6 +15,7 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^7.0.1"
+    
   },
   "devDependencies": {
     "@eslint/js": "^9.13.0",
@@ -26,5 +28,6 @@
     "eslint-plugin-react-refresh": "^0.4.14",
     "globals": "^15.11.0",
     "vite": "^5.4.10"
+    
   }
 }
