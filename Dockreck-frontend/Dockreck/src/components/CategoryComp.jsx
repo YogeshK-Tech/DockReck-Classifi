@@ -60,18 +60,29 @@ const CategoryComp = () => {
   };
 
   const handleSaveToLibrary = async () => {
-    fetch("http://127.0.0.1:5000/save_todrive", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        /* relevant data */
-      }),
-    })
-      .then((response) => response.json())
-      .then((data) => console.log("Success:", data))
-      .catch((error) => console.error("Error:", error));
+    try {
+      const response = await fetch("http://127.0.0.1:5000/save_todrive", {
+        method: "POST",
+        credentials: "include",
+      });
+
+      if (response.status === 401) {
+        const data = await response.json();
+        if (data.redirect_url) {
+          // Redirect user to OAuth flow
+          window.location.href = data.redirect_url;
+        }
+      } else if (response.ok) {
+        const result = await response.json();
+        console.log("Files uploaded successfully:", result);
+        alert("Files uploaded to Google Drive!");
+      } else {
+        console.error("Error during save to Drive:", await response.json());
+      }
+    } catch (error) {
+      console.error("Unexpected error:", error);
+      alert("An unexpected error occurred.");
+    }
   };
 
   if (loading) {

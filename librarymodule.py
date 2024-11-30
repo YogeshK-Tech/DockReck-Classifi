@@ -23,7 +23,7 @@ def get_or_create_folder(service, folder_name, parent_id=None):
     return folder['id']
 
 def upload_file_to_drive(service, file_path, category, subcategory):
-    root_folder = get_or_create_folder(service, 'AppName Library')
+    root_folder = get_or_create_folder(service, 'DocReck Library')
     category_folder = get_or_create_folder(service, category, root_folder)
     subcategory_folder = get_or_create_folder(service, subcategory, category_folder)
 

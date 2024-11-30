@@ -1,4 +1,5 @@
-from flask import Flask, redirect, request, jsonify, url_for
+from flask import Flask, Request, redirect, request, jsonify, session, url_for
+from flask_session import Session
 from flask_cors import CORS
 import os
 from werkzeug.utils import secure_filename
@@ -12,12 +13,14 @@ from librarymodule import SCOPES, upload_file_to_drive
 
 app = Flask(__name__)
 os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
+app.config['SESSION_TYPE'] = 'filesystem'
+Session(app)
 
 # Set a secret key
 app.secret_key = os.urandom(24)  # Generates a random 24-byte key
 
-# Allow all origins for development, but limit in production
-CORS(app, resources={r"/*": {"origins": "http://localhost:5173"}}, supports_credentials=True)
+# CORS configuration for allowing all origins during development
+CORS(app, resources={r"/*": {"origins": ["http://localhost:5173"]}}, supports_credentials=True)
 
 UPLOAD_FOLDER = 'uploads'
 PROCESSED_FOLDER = 'processed'
@@ -31,6 +34,7 @@ classified_docs = []
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+# Google OAuth Blueprint
 google_bp = make_google_blueprint(
     client_id="96146810234-ibpncsnk05a84n8r4off6ac3g3a5qc1l.apps.googleusercontent.com",
     client_secret="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",
@@ -44,6 +48,11 @@ def home():
     if not google.authorized:
         return redirect(url_for("google.login"))
     return jsonify({"message": "Successfully authenticated with Google!"})
+
+@app.route('/start_oauth', methods=['GET'])
+def start_oauth():
+    # Redirect user to Google's OAuth 2.0 authorization URL
+    return redirect(google.authorization_url(scope=["https://www.googleapis.com/auth/drive"])[0])
 
 @app.route("/upload", methods=["POST"])
 def upload_file():
@@ -89,7 +98,6 @@ def upload_file():
 
 @app.route('/get_classified_docs', methods=['GET'])
 def get_classified_docs():
-    # Extract only the relevant details (e.g., file name and file path) to make them JSON serializable
     docs_data = [{'name': doc['name'], 'category': doc['category'], 'subcategory': doc['subcategory'], 'type': doc['type'], 'file_path': doc['file_path']} for doc in classified_docs]
     return jsonify({"docs": docs_data}), 200
 
@@ -112,61 +120,73 @@ def update_label():
 
 @app.route("/save_todrive", methods=["POST"])
 def save_todrive():
-    if not classified_docs:
-        return jsonify({"message": "No classified documents available."}), 400
-
-    if not google.authorized:
-        return redirect(url_for("google.login"))
-
-    service = google.session
-    failed_uploads, successful_uploads = [], []
-
-    for doc in classified_docs:
-        if not os.path.exists(doc['file_path']):
-            failed_uploads.append({"name": doc['name'], "error": "File not found."})
-            continue
-
-        try:
-            drive_file_id = upload_file_to_drive(service, doc['file_path'], doc['category'], doc['subcategory'])
-            successful_uploads.append({"name": doc['name'], "drive_file_id": drive_file_id})
-        except Exception as e:
-            failed_uploads.append({"name": doc['name'], "error": str(e)})
-
-    if successful_uploads:
+    # Check if token.json exists (indicating prior authentication)
+    if not os.path.exists('token.json'):
         return jsonify({
-            "successful_uploads": successful_uploads,
-            "failed_uploads": failed_uploads
-        }), 200
-    else:
-        return jsonify({
-            "message": "No successful uploads.",
-            "failed_uploads": failed_uploads
-        }), 500
+            "message": "User not authenticated. Redirecting to authorization.",
+            "redirect_url": url_for('authorize', _external=True)  # Provide redirect URL for frontend
+        }), 401
+
+    # Load credentials from token file
+    credentials = Credentials.from_authorized_user_file('token.json', SCOPES)
+    if not credentials or not credentials.valid:
+        if credentials and credentials.expired and credentials.refresh_token:
+            credentials.refresh(Request())
+        else:
+            return jsonify({
+                "message": "User not authenticated. Redirecting to authorization.",
+                "redirect_url": url_for('authorize', _external=True)  # Provide redirect URL for frontend
+            }), 401
+
+    # Process file uploads after authentication
+    try:
+        service = build('drive', 'v3', credentials=credentials)
+        successful_uploads, failed_uploads = [], []
+
+        for doc in classified_docs:
+            if not os.path.exists(doc['file_path']):
+                failed_uploads.append({"name": doc['name'], "error": "File not found."})
+                continue
+
+            try:
+                drive_file_id = upload_file_to_drive(service, doc['file_path'], doc['category'], doc['subcategory'])
+                successful_uploads.append({"name": doc['name'], "drive_file_id": drive_file_id})
+            except Exception as e:
+                failed_uploads.append({"name": doc['name'], "error": str(e)})
+
+        if successful_uploads:
+            return jsonify({"successful_uploads": successful_uploads, "failed_uploads": failed_uploads}), 200
+        else:
+            return jsonify({"message": "No successful uploads.", "failed_uploads": failed_uploads}), 500
+
+    except Exception as e:
+        return jsonify({"message": f"An error occurred: {str(e)}"}), 500
+
 
 @app.route('/authorize')
 def authorize():
     flow = InstalledAppFlow.from_client_secrets_file(
         'credentials.json', SCOPES)
-    flow.redirect_uri = 'http://127.0.0.1:5000/oauth2callback'
+    flow.redirect_uri = url_for('oauth2callback', _external=True)
     authorization_url, state = flow.authorization_url(
         access_type='offline',
         include_granted_scopes='true'
     )
     return redirect(authorization_url)
 
+
 @app.route('/oauth2callback')
 def oauth2callback():
     flow = InstalledAppFlow.from_client_secrets_file(
         'credentials.json', SCOPES)
-    flow.redirect_uri = 'http://127.0.0.1:5000/oauth2callback'
-    authorization_response = request.url
-    flow.fetch_token(authorization_response=authorization_response)
+    flow.redirect_uri = url_for('oauth2callback', _external=True)
+    flow.fetch_token(authorization_response=request.url)
 
-    credentials = flow.credentials
-    with open('token.json', 'w') as token_file:
-        token_file.write(credentials.to_json())
+    
+    # Store token in session
+    session['credentials'] = flow.credentials.to_json()
 
-    return jsonify({"message": "Authentication successful!"})
+    return "Authorization successful. You may close this tab."
 
 if __name__ == "__main__":
     os.makedirs(UPLOAD_FOLDER, exist_ok=True)
