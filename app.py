@@ -1,4 +1,6 @@
-from flask import Flask, Request, redirect, request, jsonify, session, url_for
+from flask import Flask, redirect, request, jsonify, session, url_for
+from google.auth.transport.requests import Request as GoogleAuthRequest
+from google_auth_oauthlib.flow import Flow
 from flask_session import Session
 from flask_cors import CORS
 import os
@@ -38,7 +40,7 @@ def allowed_file(filename):
 google_bp = make_google_blueprint(
     client_id="96146810234-ibpncsnk05a84n8r4off6ac3g3a5qc1l.apps.googleusercontent.com",
     client_secret="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",
-    scope=["https://www.googleapis.com/auth/drive"],
+    scope=["https://www.googleapis.com/auth/drive", "https://www.googleapis.com/auth/userinfo.email"],
     redirect_to="home"
 )
 app.register_blueprint(google_bp, url_prefix="/login")
@@ -49,10 +51,20 @@ def home():
         return redirect(url_for("google.login"))
     return jsonify({"message": "Successfully authenticated with Google!"})
 
+
 @app.route('/start_oauth', methods=['GET'])
 def start_oauth():
-    # Redirect user to Google's OAuth 2.0 authorization URL
-    return redirect(google.authorization_url(scope=["https://www.googleapis.com/auth/drive"])[0])
+    # Generate the authorization URL
+    authorization_url, state = google.authorization_url(
+        'https://accounts.google.com/o/oauth2/auth'
+    )
+    
+    print("Authorization URL: ", authorization_url)  # Debugging the generated URL
+    return redirect(authorization_url)
+
+
+
+
 
 @app.route("/upload", methods=["POST"])
 def upload_file():
@@ -120,27 +132,45 @@ def update_label():
 
 @app.route("/save_todrive", methods=["POST"])
 def save_todrive():
-    # Check if token.json exists (indicating prior authentication)
+    # Fetch user ID from the stored token or session
     if not os.path.exists('token.json'):
         return jsonify({
             "message": "User not authenticated. Redirecting to authorization.",
-            "redirect_url": url_for('authorize', _external=True)  # Provide redirect URL for frontend
+            "redirect_url": url_for('start_oauth', _external=True)
         }), 401
 
-    # Load credentials from token file
     credentials = Credentials.from_authorized_user_file('token.json', SCOPES)
+
     if not credentials or not credentials.valid:
         if credentials and credentials.expired and credentials.refresh_token:
-            credentials.refresh(Request())
+            credentials.refresh(GoogleAuthRequest())
         else:
             return jsonify({
                 "message": "User not authenticated. Redirecting to authorization.",
-                "redirect_url": url_for('authorize', _external=True)  # Provide redirect URL for frontend
+                "redirect_url": url_for('authorize', _external=True)
             }), 401
 
-    # Process file uploads after authentication
+    # Fetch the user's email as the unique identifier
+    service = build('people', 'v1', credentials=credentials)
+    profile = service.people().get(resourceName='people/me', personFields='emailAddresses').execute()
+    user_email = profile['emailAddresses'][0]['value']
+    user_id = user_email.replace('@', '_').replace('.', '_')  # Normalize for filenames
+
+    token_path = f'tokens/{user_id}_token.json'
+
+    # Ensure user-specific token exists
+    if not os.path.exists(token_path):
+        return jsonify({
+            "message": "User not authenticated. Redirecting to authorization.",
+            "redirect_url": url_for('authorize', _external=True)
+        }), 401
+
+    # Load user-specific credentials
+    credentials = Credentials.from_authorized_user_file(token_path, SCOPES)
+    service = build('drive', 'v3', credentials=credentials)
+
+    # Process file uploads
     try:
-        service = build('drive', 'v3', credentials=credentials)
         successful_uploads, failed_uploads = [], []
 
         for doc in classified_docs:
@@ -163,30 +193,72 @@ def save_todrive():
         return jsonify({"message": f"An error occurred: {str(e)}"}), 500
 
 
+
+
 @app.route('/authorize')
 def authorize():
-    flow = InstalledAppFlow.from_client_secrets_file(
-        'credentials.json', SCOPES)
-    flow.redirect_uri = url_for('oauth2callback', _external=True)
-    authorization_url, state = flow.authorization_url(
-        access_type='offline',
-        include_granted_scopes='true'
-    )
-    return redirect(authorization_url)
+    try:
+        # Make sure the flow uses the correct redirect URI and client secret
+        flow = InstalledAppFlow.from_client_secrets_file('credentials.json', SCOPES)
+        flow.redirect_uri = url_for('authorize', _external=True)
+
+        # Fetch the token using the authorization response
+        authorization_response = request.url
+        flow.fetch_token(authorization_response=authorization_response)
+
+        # Store credentials in session
+        session['credentials'] = flow.credentials.to_json()
+
+        # You can fetch user details if needed here
+        credentials = flow.credentials
+        service = build('people', 'v1', credentials=credentials)
+        profile = service.people().get(resourceName='people/me', personFields='emailAddresses').execute()
+        user_email = profile['emailAddresses'][0]['value']
+
+        return jsonify({"message": "Authorization successful!", "user_email": user_email})
+    
+    except Exception as e:
+        return jsonify({"message": f"Error during authorization: {str(e)}"}), 500
+
+
+
+
+
 
 
 @app.route('/oauth2callback')
 def oauth2callback():
-    flow = InstalledAppFlow.from_client_secrets_file(
-        'credentials.json', SCOPES)
-    flow.redirect_uri = url_for('oauth2callback', _external=True)
-    flow.fetch_token(authorization_response=request.url)
+    print("Callback URL:", request.url)  # Check the URL on callback
+    try:
+        # Use the Flow to fetch the token from the code provided in the callback
+        flow = InstalledAppFlow.from_client_secrets_file(
+            'credentials.json', SCOPES)
+        flow.redirect_uri = url_for('oauth2callback', _external=True)
+        flow.fetch_token(authorization_response=request.url)
 
-    
-    # Store token in session
-    session['credentials'] = flow.credentials.to_json()
+        # Store credentials in session
+        session['credentials'] = flow.credentials.to_json()
 
-    return "Authorization successful. You may close this tab."
+        # Fetch user profile information (email)
+        credentials = flow.credentials
+        service = build('people', 'v1', credentials=credentials)
+        profile = service.people().get(resourceName='people/me', personFields='emailAddresses').execute()
+        user_email = profile['emailAddresses'][0]['value']
+
+        # Use the user's email as their unique identifier
+        user_id = user_email.replace('@', '_').replace('.', '_')  # Normalize email to create a safe filename
+
+        # Save credentials for this user
+        token_path = f'tokens/{user_id}_token.json'
+        os.makedirs('tokens', exist_ok=True)  # Ensure the tokens directory exists
+        with open(token_path, 'w') as token_file:
+            token_file.write(credentials.to_json())
+
+        return jsonify({"message": "Authorization successful!", "user_id": user_id})
+
+    except Exception as e:
+        return jsonify({"message": f"Error during authorization: {str(e)}"}), 500
+
 
 if __name__ == "__main__":
     os.makedirs(UPLOAD_FOLDER, exist_ok=True)
