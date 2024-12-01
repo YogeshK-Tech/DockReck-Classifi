@@ -1,17 +1,21 @@
 from flask import Flask, redirect, request, jsonify, session, url_for
 from google.auth.transport.requests import Request as GoogleAuthRequest
+from datetime import datetime, timedelta
 from google_auth_oauthlib.flow import Flow
 from flask_session import Session
 from flask_cors import CORS
 import os
+import pandas as pd
 from werkzeug.utils import secure_filename
 from flask_dance.contrib.google import make_google_blueprint, google
+from utils import initial_dataset_creator, train_classifiers, load_model, save_model, classify_text, correct_predictions
 from extract_text import extract_text_from_file
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 from classify import classifier, classify_document
 from librarymodule import SCOPES, upload_file_to_drive
+import global_config
 
 app = Flask(__name__)
 os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
@@ -36,110 +40,195 @@ classified_docs = []
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-# Google OAuth Blueprint
-google_bp = make_google_blueprint(
-    client_id="96146810234-ibpncsnk05a84n8r4off6ac3g3a5qc1l.apps.googleusercontent.com",
-    client_secret="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",
-    scope=["https://www.googleapis.com/auth/drive", "https://www.googleapis.com/auth/userinfo.email"],
-    redirect_to="home"
-)
-app.register_blueprint(google_bp, url_prefix="/login")
+# # Google OAuth Blueprint
+# google_bp = make_google_blueprint(
+#     client_id="96146810234-ibpncsnk05a84n8r4off6ac3g3a5qc1l.apps.googleusercontent.com",
+#     client_secret="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",
+#     scope=[
+#         "https://www.googleapis.com/auth/drive",          # For Google Drive access
+#         "https://www.googleapis.com/auth/userinfo.email",  # For email access
+#         "https://www.googleapis.com/auth/userinfo.profile" # For profile information access
+#     ],
+#     redirect_to="home"
+# )
+# app.register_blueprint(google_bp, url_prefix="/login")
 
-@app.route("/home")
-def home():
-    if not google.authorized:
-        return redirect(url_for("google.login"))
-    return jsonify({"message": "Successfully authenticated with Google!"})
+SCOPES = [
+    'https://www.googleapis.com/auth/userinfo.email',
+    'https://www.googleapis.com/auth/drive',
+    'openid',
+    'https://www.googleapis.com/auth/userinfo.profile',
+]
 
 
-@app.route('/start_oauth', methods=['GET'])
-def start_oauth():
-    # Generate the authorization URL
-    authorization_url, state = google.authorization_url(
-        'https://accounts.google.com/o/oauth2/auth'
-    )
+# @app.route("/home")
+# def home():
+#     if not google.authorized:
+#         return redirect(url_for("google.login"))
+#     return jsonify({"message": "Successfully authenticated with Google!"})
+
+
+# @app.route('/start_oauth', methods=['GET'])
+# def start_oauth():
+#     # Generate the authorization URL
+#     authorization_url, state = google.authorization_url(
+#         'https://accounts.google.com/o/oauth2/auth'
+#     )
     
-    print("Authorization URL: ", authorization_url)  # Debugging the generated URL
-    return redirect(authorization_url)
+#     print("Authorization URL: ", authorization_url)  # Debugging the generated URL
+#     return redirect(authorization_url)
 
-
+@app.route("/initial_run", methods=["POST"])
+def initial_run():
+    """This code will run the steps 1-2"""
+    try:
+        initial_dataset_creator(PROCESSED_FOLDER) # will create labelled_sjon
+        global_config.data_df = pd.read_json('labelled_json.json')
+        train_classifiers()
+        save_model()
+        return jsonify({"Status": "Success"}), 200
+    except Exception as e:
+        return jsonify({"Error": e}), 400
 
 
 
 @app.route("/upload", methods=["POST"])
 def upload_file():
     if 'file' not in request.files:
-        return jsonify({"message": "No file part"}), 400
+        return jsonify({"message": "No files part"}), 400
 
-    file = request.files['file']
-    if file.filename == '':
-        return jsonify({"message": "No selected file"}), 400
+    files = request.files.getlist('file')
+    if not files or all(file.filename == '' for file in files):
+        return jsonify({"message": "No selected files"}), 400
 
-    if file and allowed_file(file.filename):
-        filename = secure_filename(file.filename)
-        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        file.save(file_path)
+    predictions = []
+    errors = []
 
-        try:
-            # Extract text from file
-            text = extract_text_from_file(file_path)
+    for file in files:
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            file.save(file_path)
 
-            # Classify using DistilBERT
-            category, subcategory = classify_document(text)
+            try:
+                # Extract text and generate embeddings
+                text = extract_text_from_file(file_path)
+                embedding = global_config.model.encode(text)
+                if len(embedding.shape) == 1:  # Ensure embedding is 2D
+                    embedding = embedding.reshape(1, -1)
 
-            # Add to temporary storage
-            classified_docs.append({
-                "name": filename,
-                "type": file.filename.split('.')[-1].upper(),
-                "category": category,
-                "subcategory": subcategory,
-                "file_path": file_path  # Store file path instead of FileStorage object
-            })
+                # Predict category and subcategory
+                try:
+                    load_model()
+                except FileNotFoundError:
+                    print("Models not found. Initializing fresh models.")
+                    global_config.cat_classifier = None
+                    global_config.subcat_classifier = None
 
-            return jsonify({
-                "message": "File successfully processed and classified.",
-                "predictions": {
+                category, subcategory = classify_text(text)
+
+                # Add the new classified file into the data df
+                new_row = {
+                    "File_Name": filename,
+                    "Text": text,
+                    "Category": category,
+                    "Subcategory": subcategory,
+                    "Embeddings": embedding.tolist()  # Convert NumPy array to list for JSON compatibility
+                }
+                global_config.data_df = pd.concat([global_config.data_df, pd.DataFrame([new_row])], ignore_index=True)
+                predictions.append({
+                    "file_name": filename,
                     "category": category,
                     "subcategory": subcategory
-                }
-            }), 200
-        except Exception as e:
-            return jsonify({"message": f"Error processing file: {str(e)}"}), 500
+                })
 
-    return jsonify({"message": "Invalid file format."}), 400
+            except Exception as e:
+                errors.append({"file_name": filename, "error": str(e)})
+        else:
+            errors.append({"file_name": file.filename, "error": "Invalid file format"})
+
+    response = {
+        "message": "File successfully processed",
+        "predictions": predictions,
+        "errors": errors
+    }
+    print(response)
+    if predictions:
+        return jsonify(response), 200
+    else:
+        return jsonify(response), 400
 
 @app.route('/get_classified_docs', methods=['GET'])
 def get_classified_docs():
-    docs_data = [{'name': doc['name'], 'category': doc['category'], 'subcategory': doc['subcategory'], 'type': doc['type'], 'file_path': doc['file_path']} for doc in classified_docs]
+    upload_folder = app.config['UPLOAD_FOLDER']
+    result_df = global_config.data_df.drop(columns=["Embeddings"], errors="ignore")
+
+    if result_df.empty:
+        return jsonify({"message": "No classified documents available."}), 200
+
+    docs_data = []
+    for _, row in result_df.iterrows():
+        file_name = row["File_Name"]
+        file_extension = file_name.split('.')[-1].upper()
+        file_path = os.path.join(upload_folder, file_name)
+
+        if not os.path.exists(file_path):
+            print(f"File not found: {file_path}")
+            continue
+
+        docs_data.append({
+            "name": file_name,
+            "category": row["Category"],
+            "subcategory": row["Subcategory"],
+            "type": file_extension,
+            "file_path": file_path
+        })
+
     return jsonify({"docs": docs_data}), 200
 
 @app.route("/update_label", methods=["POST"])
 def update_label():
+    """This will update label and retrain"""
     data = request.get_json()
 
     if 'name' not in data or 'category' not in data or 'subcategory' not in data:
         return jsonify({"message": "Missing required fields: name, category, and subcategory."}), 400
+    msg = correct_predictions(data['name'], data['category'], data['subcategory'])
 
-    doc = next((doc for doc in classified_docs if doc['name'] == data['name']), None)
+    response = {
+        "docs": [{
+            "message": msg,
+            "document": data
+        }]
+    }
 
-    if not doc:
-        return jsonify({"message": "Document not found."}), 404
-
-    doc['category'] = data['category']
-    doc['subcategory'] = data['subcategory']
-
-    return jsonify({"message": "Document updated successfully.", "document": doc}), 200
+    return jsonify(response), 200
 
 @app.route("/save_todrive", methods=["POST"])
 def save_todrive():
-    # Fetch user ID from the stored token or session
-    if not os.path.exists('token.json'):
+    # Fetch user ID from the stored session cookie
+    user_email = request.cookies.get('user_email')
+    print("User Email:", user_email)
+    if not user_email:  # Check if user_id exists in cookies
+        
         return jsonify({
             "message": "User not authenticated. Redirecting to authorization.",
-            "redirect_url": url_for('start_oauth', _external=True)
+            "redirect_url": url_for('authorize', _external=True)
+        }), 401
+    
+    user_id = user_email.replace('@', '_').replace('.', '_')
+
+    token_path = f'tokens/{user_id}_token.json'
+    
+    # Ensure the user has a valid token file
+    if not os.path.exists(token_path):
+        return jsonify({
+            "message": "User not authenticated. Redirecting to authorization.",
+            "redirect_url": url_for('authorize', _external=True)
         }), 401
 
-    credentials = Credentials.from_authorized_user_file('token.json', SCOPES)
+    # Load credentials from the token file
+    credentials = Credentials.from_authorized_user_file(token_path, SCOPES)
 
     if not credentials or not credentials.valid:
         if credentials and credentials.expired and credentials.refresh_token:
@@ -154,25 +243,12 @@ def save_todrive():
     service = build('people', 'v1', credentials=credentials)
     profile = service.people().get(resourceName='people/me', personFields='emailAddresses').execute()
     user_email = profile['emailAddresses'][0]['value']
-    user_id = user_email.replace('@', '_').replace('.', '_')  # Normalize for filenames
-
-    token_path = f'tokens/{user_id}_token.json'
-
-    # Ensure user-specific token exists
-    if not os.path.exists(token_path):
-        return jsonify({
-            "message": "User not authenticated. Redirecting to authorization.",
-            "redirect_url": url_for('authorize', _external=True)
-        }), 401
-
-    # Load user-specific credentials
-    credentials = Credentials.from_authorized_user_file(token_path, SCOPES)
-    service = build('drive', 'v3', credentials=credentials)
-
+    
     # Process file uploads
     try:
         successful_uploads, failed_uploads = [], []
-
+        
+        # Assuming 'classified_docs' exists and contains document information
         for doc in classified_docs:
             if not os.path.exists(doc['file_path']):
                 failed_uploads.append({"name": doc['name'], "error": "File not found."})
@@ -197,67 +273,62 @@ def save_todrive():
 
 @app.route('/authorize')
 def authorize():
+    """
+    Redirects the user to Google's OAuth 2.0 consent screen with the required scopes.
+    """
     try:
-        # Make sure the flow uses the correct redirect URI and client secret
-        flow = InstalledAppFlow.from_client_secrets_file('credentials.json', SCOPES)
-        flow.redirect_uri = url_for('authorize', _external=True)
+        # Creating the OAuth flow with requested scopes
+        flow = Flow.from_client_secrets_file('credentials.json', SCOPES)
+        flow.redirect_uri = url_for('oauth2callback', _external=True)
+        
+        # Force re-consent by including the 'prompt' parameter
+        auth_url, _ = flow.authorization_url(prompt='consent', access_type='offline', include_granted_scopes='true')
 
-        # Fetch the token using the authorization response
-        authorization_response = request.url
-        flow.fetch_token(authorization_response=authorization_response)
-
-        # Store credentials in session
-        session['credentials'] = flow.credentials.to_json()
-
-        # You can fetch user details if needed here
-        credentials = flow.credentials
-        service = build('people', 'v1', credentials=credentials)
-        profile = service.people().get(resourceName='people/me', personFields='emailAddresses').execute()
-        user_email = profile['emailAddresses'][0]['value']
-
-        return jsonify({"message": "Authorization successful!", "user_email": user_email})
-    
+        return redirect(auth_url)
     except Exception as e:
-        return jsonify({"message": f"Error during authorization: {str(e)}"}), 500
-
-
-
-
-
+        return jsonify({"message": f"Error initiating authorization: {str(e)}"}), 500
 
 
 @app.route('/oauth2callback')
 def oauth2callback():
-    print("Callback URL:", request.url)  # Check the URL on callback
+    """
+    Handles the OAuth callback and stores user credentials.
+
+    """
+    
     try:
-        # Use the Flow to fetch the token from the code provided in the callback
-        flow = InstalledAppFlow.from_client_secrets_file(
-            'credentials.json', SCOPES)
+        # Creating the OAuth flow with the requested scopes
+        flow = Flow.from_client_secrets_file('credentials.json', SCOPES)
         flow.redirect_uri = url_for('oauth2callback', _external=True)
+
+        # Fetch the token from the authorization response
         flow.fetch_token(authorization_response=request.url)
 
-        # Store credentials in session
-        session['credentials'] = flow.credentials.to_json()
-
-        # Fetch user profile information (email)
+        # Obtain credentials and fetch the user's email
         credentials = flow.credentials
         service = build('people', 'v1', credentials=credentials)
         profile = service.people().get(resourceName='people/me', personFields='emailAddresses').execute()
         user_email = profile['emailAddresses'][0]['value']
 
-        # Use the user's email as their unique identifier
-        user_id = user_email.replace('@', '_').replace('.', '_')  # Normalize email to create a safe filename
-
-        # Save credentials for this user
+        # Generate user_id and save credentials
+        user_id = user_email.replace('@', '_').replace('.', '_')
         token_path = f'tokens/{user_id}_token.json'
-        os.makedirs('tokens', exist_ok=True)  # Ensure the tokens directory exists
+        os.makedirs('tokens', exist_ok=True)
         with open(token_path, 'w') as token_file:
             token_file.write(credentials.to_json())
 
-        return jsonify({"message": "Authorization successful!", "user_id": user_id})
+        # Set cookie to expire in 1 year from now
+        
+        expires = datetime.now() + timedelta(days=365)
 
+        # Set the user email as a cookie for session management
+        response = jsonify({"message": "Authorization successful!"})
+        response.set_cookie("user_email", user_email, httponly=True, secure=False,expires=expires)
+    
+        return response
     except Exception as e:
-        return jsonify({"message": f"Error during authorization: {str(e)}"}), 500
+        return jsonify({"message": f"Error during OAuth callback: {str(e)}"}), 500
+
 
 
 if __name__ == "__main__":
