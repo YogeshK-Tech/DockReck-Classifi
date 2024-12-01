@@ -20,16 +20,16 @@ const MainComp = () => {
   const handleDrop = async (e) => {
     e.preventDefault();
     setDragging(false); // Hide the drag message
-    const files = e.dataTransfer.files;
+    const files = Array.from(e.dataTransfer.files); // Convert FileList to an array
     if (files.length > 0) {
-      await uploadFile(files[0]);
+      await uploadFiles(files); // Call bulk upload handler
     }
   };
 
   const handleFileSelect = async (e) => {
-    const file = e.target.files[0]; // Get the selected file
-    if (file) {
-      await uploadFile(file);
+    const files = Array.from(e.target.files); // Convert FileList to an array
+    if (files.length > 0) {
+      await uploadFiles(files); // Call bulk upload handler
     }
   };
 
@@ -37,30 +37,33 @@ const MainComp = () => {
     fileInputRef.current.click(); // Trigger file input click
   };
 
-  const uploadFile = async (file) => {
-    const formData = new FormData();
-    formData.append("file", file); // Assuming only one file is uploaded
-
-    setUploadStatus("Uploading...");
+  const uploadFiles = async (files) => {
+    setUploadStatus(`Uploading ${files.length} file(s)...`);
 
     try {
-      const response = await fetch("http://127.0.0.1:5000/upload", {
-        method: "POST",
-        body: formData,
+      const uploadPromises = files.map(async (file) => {
+        const formData = new FormData();
+        formData.append("file", file); // Add the file to the FormData object
+
+        const response = await fetch("http://127.0.0.1:5000/upload", {
+          method: "POST",
+          body: formData,
+        });
+
+        const result = await response.json();
+        if (!response.ok) {
+          throw new Error(result.message || "Error uploading a file.");
+        }
+        return result.message; // Return success message for this file
       });
 
-      const result = await response.json();
-      console.log("Server response:", result); // Log the backend response
-      if (response.ok) {
-        setUploadStatus(result.message);
-        setTimeout(() => {
-          navigate("/classification");
-        }, 2000);
-      } else {
-        setUploadStatus(result.message || "Error uploading file.");
-      }
+      const results = await Promise.all(uploadPromises); // Wait for all uploads
+      setUploadStatus(`All files uploaded successfully: ${results.join(", ")}`);
+      setTimeout(() => {
+        navigate("/classification");
+      }, 2000);
     } catch (error) {
-      setUploadStatus("Error uploading file. Please check your connection.");
+      setUploadStatus("Error uploading one or more files. Please try again.");
       console.error(error);
     }
   };
@@ -96,6 +99,7 @@ const MainComp = () => {
             ref={fileInputRef}
             style={{ display: "none" }} // Hidden input element
             onChange={handleFileSelect}
+            multiple // Allow multiple files selection
           />
         </div>
       </div>
