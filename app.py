@@ -14,7 +14,7 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 from classify import classifier, classify_document
-from librarymodule import SCOPES, upload_file_to_drive
+from librarymodule import SCOPES, save_files_to_drive, upload_file_to_drive, get_or_create_folder
 import global_config
 
 app = Flask(__name__)
@@ -181,7 +181,7 @@ def get_classified_docs():
         file_path = os.path.join(upload_folder, file_name)
 
         if not os.path.exists(file_path):
-            print(f"File not found: {file_path}")
+            # print(f"File not found: {file_path}")
             continue
 
         docs_data.append({
@@ -191,6 +191,9 @@ def get_classified_docs():
             "type": file_extension,
             "url": file_path
         })
+    global classified_docs
+
+    classified_docs=docs_data
 
     return jsonify({"docs": docs_data}), 200
 
@@ -225,55 +228,68 @@ def save_todrive():
         }), 401
     
     user_id = user_email.replace('@', '_').replace('.', '_')
+    
+    print("User ID:", user_id)
 
     token_path = f'tokens/{user_id}_token.json'
     
     # Ensure the user has a valid token file
     if not os.path.exists(token_path):
         return jsonify({
-            "message": "User not authenticated. Redirecting to authorization.",
+            "message": "Not valid token. Redirecting to authorization.",
             "redirect_url": url_for('authorize', _external=True)
-        }), 401
+        }), 402
 
     # Load credentials from the token file
     credentials = Credentials.from_authorized_user_file(token_path, SCOPES)
 
+
     if not credentials or not credentials.valid:
         if credentials and credentials.expired and credentials.refresh_token:
             credentials.refresh(GoogleAuthRequest())
+            print("Credentials refreshed successfully.")
         else:
             return jsonify({
                 "message": "User not authenticated. Redirecting to authorization.",
                 "redirect_url": url_for('authorize', _external=True)
-            }), 401
+            }), 404
 
     # Fetch the user's email as the unique identifier
     service = build('people', 'v1', credentials=credentials)
     profile = service.people().get(resourceName='people/me', personFields='emailAddresses').execute()
     user_email = profile['emailAddresses'][0]['value']
+    print("SERVICE:",service)
+
     
     # Process file uploads
     try:
         successful_uploads, failed_uploads = [], []
-        
+        print("these are classified_docs:",classified_docs)
         # Assuming 'classified_docs' exists and contains document information
+        # trying to create a dummy folder
+        print(" called create folder")
+        get_or_create_folder(service, 'DocReck Library Test 1')
         for doc in classified_docs:
-            if not os.path.exists(doc['file_path']):
+            if not os.path.exists(doc['url']):
                 failed_uploads.append({"name": doc['name'], "error": "File not found."})
                 continue
 
             try:
-                drive_file_id = upload_file_to_drive(service, doc['file_path'], doc['category'], doc['subcategory'])
+                drive_file_id = upload_file_to_drive(service, doc['url'], doc['category'], doc['subcategory'])
                 successful_uploads.append({"name": doc['name'], "drive_file_id": drive_file_id})
             except Exception as e:
+                print(f"Error during file upload to Drive: {str(e)}")
                 failed_uploads.append({"name": doc['name'], "error": str(e)})
 
         if successful_uploads:
+            print(f"Successfully uploaded: {successful_uploads}")
             return jsonify({"successful_uploads": successful_uploads, "failed_uploads": failed_uploads}), 200
         else:
+            print(f"No successful uploads.")
             return jsonify({"message": "No successful uploads.", "failed_uploads": failed_uploads}), 500
 
     except Exception as e:
+        print(f"Error during file upload to Drive: {str(e)}")
         return jsonify({"message": f"An error occurred: {str(e)}"}), 500
 
 
@@ -300,16 +316,12 @@ def authorize():
 @app.route('/oauth2callback')
 def oauth2callback():
     """
-    Handles the OAuth callback and stores user credentials.
-
+    Handles the OAuth callback, stores user credentials, and redirects to the frontend classification screen.
     """
-    
     try:
-        # Creating the OAuth flow with the requested scopes
+        # Create OAuth flow and fetch token
         flow = Flow.from_client_secrets_file('credentials.json', SCOPES)
         flow.redirect_uri = url_for('oauth2callback', _external=True)
-
-        # Fetch the token from the authorization response
         flow.fetch_token(authorization_response=request.url)
 
         # Obtain credentials and fetch the user's email
@@ -318,24 +330,32 @@ def oauth2callback():
         profile = service.people().get(resourceName='people/me', personFields='emailAddresses').execute()
         user_email = profile['emailAddresses'][0]['value']
 
-        # Generate user_id and save credentials
+        # Save credentials to a file
         user_id = user_email.replace('@', '_').replace('.', '_')
         token_path = f'tokens/{user_id}_token.json'
         os.makedirs('tokens', exist_ok=True)
         with open(token_path, 'w') as token_file:
             token_file.write(credentials.to_json())
 
-        # Set cookie to expire in 1 year from now
-        
-        expires = datetime.now() + timedelta(days=365)
+        # Save files to Google Drive
+         # Custom function to handle the saving logic
 
-        # Set the user email as a cookie for session management
-        response = jsonify({"message": "Authorization successful!"})
-        response.set_cookie("user_email", user_email, httponly=True, secure=False,expires=expires)
-    
+        # Redirect to the frontend classification screen
+        frontend_url = "http://localhost:5173/classification"
+        response = redirect(frontend_url)
+        print("user email",user_email)
+        response.set_cookie("user_email" ,user_email, httponly=True, secure=False, max_age=60 * 60 * 24 * 365)
+          # Cookie valid for 1 year
+        email = request.cookies.get('user_email')
+        print("cookie",email)
+        # save_files_to_drive(service,classified_docs) 
+        save_todrive()
         return response
+
     except Exception as e:
         return jsonify({"message": f"Error during OAuth callback: {str(e)}"}), 500
+
+
 
 
 

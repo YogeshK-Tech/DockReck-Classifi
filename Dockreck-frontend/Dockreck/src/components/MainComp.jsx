@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import styles from "../styles/MainComp.module.css";
 import { useNavigate } from "react-router-dom";
 
@@ -7,6 +7,31 @@ const MainComp = () => {
   const [uploadStatus, setUploadStatus] = useState(""); // State for upload status
   const navigate = useNavigate();
   const fileInputRef = useRef(null); // Ref to the file input element
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch("http://127.0.0.1:5000/initial_run", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          console.log("Backend Response:", data);
+        } else {
+          const error = await response.json();
+          console.error("Error:", error);
+        }
+      } catch (error) {
+        console.error("Fetch Error:", error);
+      }
+    };
+
+    fetchData();
+  }, []); // Runs only once when the component mounts
 
   const handleDragOver = (e) => {
     e.preventDefault();
