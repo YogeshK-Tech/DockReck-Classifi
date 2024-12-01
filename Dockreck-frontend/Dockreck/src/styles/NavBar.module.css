@@ -13,13 +13,6 @@
   font-weight: 800;
 }
 
-/* Active link styling */
-.navLinkActive {
-  background-color: #1a1a1a; /* Slightly lighter black for active button */
-  color: #fff; /* White text */
-  border-radius: 5px; /* Rounded corners for active links */
-}
-
 /* Default nav link styling */
 .navLink {
   color: #ddd; /* Light gray for non-active links */
@@ -48,4 +41,12 @@
   color: #fff; /* Ensure logo text is visible */
   margin-right: auto; /* Keep logo to the left */
   margin-left: 60px;
+}
+
+/* NavBar.module.css */
+
+.navlinkActive {
+  background-color: #0d6efd; /* Active background color */
+  border-radius: 5px;
+  color: white;
 }
