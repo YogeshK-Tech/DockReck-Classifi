@@ -48,6 +48,7 @@ def initial_dataset_creator(folder_path):
     print(f"DOne")
 
 
+
 def train_classifiers():
     """Train classifiers for categories and subcategories."""
     df = global_config.data_df
