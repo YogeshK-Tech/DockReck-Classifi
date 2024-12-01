@@ -1,4 +1,4 @@
-from flask import Flask, redirect, request, jsonify, session, url_for
+from flask import Flask, redirect, request, jsonify, send_file, session, url_for
 from google.auth.transport.requests import Request as GoogleAuthRequest
 from datetime import datetime, timedelta
 from google_auth_oauthlib.flow import Flow
@@ -89,7 +89,15 @@ def initial_run():
         return jsonify({"Status": "Success"}), 200
     except Exception as e:
         return jsonify({"Error": e}), 400
+    
 
+@app.route("/files/<path:filename>")
+def serve_file(filename):
+    
+    try:
+        return send_file(filename)
+    except FileNotFoundError:
+        return "File not found", 404
 
 
 @app.route("/upload", methods=["POST"])
@@ -181,7 +189,7 @@ def get_classified_docs():
             "category": row["Category"],
             "subcategory": row["Subcategory"],
             "type": file_extension,
-            "file_path": file_path
+            "url": file_path
         })
 
     return jsonify({"docs": docs_data}), 200

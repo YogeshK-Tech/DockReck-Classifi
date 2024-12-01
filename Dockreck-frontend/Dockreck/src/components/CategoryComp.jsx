@@ -113,7 +113,15 @@ const CategoryComp = () => {
                 className={`fw-bold ${styles.documentName}`}
                 tabIndex={0} // Makes the document name keyboard navigable
                 role="button"
-                onClick={() => window.open(doc.url, "_blank")} // Assuming `doc.url` contains the document's link
+                onClick={() =>
+                  window.open(
+                    `http://127.0.0.1:5000/files/${encodeURIComponent(
+                      doc.url
+                    )}`,
+                    "_blank"
+                  )
+                }
+                // Assuming `doc.url` contains the document's link
                 aria-label={`Open ${doc.name}`}
               >
                 {doc.name}
