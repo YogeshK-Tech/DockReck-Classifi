@@ -34,22 +34,22 @@ const NavBar = () => {
           }`}
         >
           <li className={`nav-item ${styles.navItem}`}>
-            <a href="#" className={styles.navLink}>
+            <a href="/" className={styles.navLink}>
               Home
             </a>
           </li>
           <li className={`nav-item ${styles.navItem}`}>
-            <a href="#" className={styles.navLink}>
+            <a href="/" className={styles.navLink}>
               Uploads
             </a>
           </li>
           <li className={`nav-item ${styles.navItem}`}>
-            <a href="#" className={styles.navLink}>
+            <a href="/" className={styles.navLink}>
               History
             </a>
           </li>
           <li className={`nav-item ${styles.navItem}`}>
-            <a href="#" className={styles.navLink}>
+            <a href="/" className={styles.navLink}>
               About
             </a>
           </li>
