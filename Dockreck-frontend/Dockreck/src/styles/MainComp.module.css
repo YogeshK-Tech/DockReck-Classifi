@@ -26,8 +26,9 @@
   display: block;
   margin: 0 auto 20px;
   width: 100px;
-  height: 70px;
+  height: 100px;
   object-fit: contain;
+  margin-top: 100px;
 }
 
 /* Heading styling */
@@ -36,6 +37,7 @@
   font-weight: 800;
   color: #212529; /* Dark text */
   margin-bottom: 20px;
+  
 }
 
 /* Description styling */
