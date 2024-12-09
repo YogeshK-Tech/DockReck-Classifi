@@ -1,12 +1,12 @@
 import { Outlet } from "react-router-dom";
 import "./App.css";
-import NavBar from "./components/navBar";
+import NavBar from '../src/components/NavBar';
 // import MainComp from "./components/MainComp";
 // import CategoryComp from "./components/CategoryComp";
 function App() {
   return (
     <>
-      <NavBar></NavBar>
+      <NavBar/>
       <Outlet />
       {/* <MainComp></MainComp>
       <CategoryComp></CategoryComp> */}

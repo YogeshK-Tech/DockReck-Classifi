@@ -1,4 +1,4 @@
-import React from "react";
+
 import styles from "../styles/NavBar.module.css"; // Import the CSS Module
 
 const NavBar = () => {
