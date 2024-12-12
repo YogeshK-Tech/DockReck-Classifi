@@ -53,12 +53,12 @@ def allowed_file(filename):
 # )
 # app.register_blueprint(google_bp, url_prefix="/login")
 
-SCOPES = [
-    'https://www.googleapis.com/auth/userinfo.email',
-    'https://www.googleapis.com/auth/drive',
-    'openid',
-    'https://www.googleapis.com/auth/userinfo.profile',
-]
+# SCOPES = [
+#     'https://www.googleapis.com/auth/userinfo.email',
+#     'https://www.googleapis.com/auth/drive',
+#     'openid',
+#     'https://www.googleapis.com/auth/userinfo.profile',
+# ]
 
 
 # @app.route("/home")
@@ -215,145 +215,145 @@ def update_label():
 
     return jsonify(response), 200
 
-@app.route("/save_todrive", methods=["POST"])
-def save_todrive():
-    # Fetch user ID from the stored session cookie
-    user_email = request.cookies.get('user_email')
-    print("User Email:", user_email)
-    if not user_email:  # Check if user_id exists in cookies
+# @app.route("/save_todrive", methods=["POST"])
+# def save_todrive():
+#     # Fetch user ID from the stored session cookie
+#     user_email = request.cookies.get('user_email')
+#     print("User Email:", user_email)
+#     if not user_email:  # Check if user_id exists in cookies
         
-        return jsonify({
-            "message": "User not authenticated. Redirecting to authorization.",
-            "redirect_url": url_for('authorize', _external=True)
-        }), 401
+#         return jsonify({
+#             "message": "User not authenticated. Redirecting to authorization.",
+#             "redirect_url": url_for('authorize', _external=True)
+#         }), 401
     
-    user_id = user_email.replace('@', '_').replace('.', '_')
+#     user_id = user_email.replace('@', '_').replace('.', '_')
     
-    print("User ID:", user_id)
+#     print("User ID:", user_id)
 
-    token_path = f'tokens/{user_id}_token.json'
+#     token_path = f'tokens/{user_id}_token.json'
     
-    # Ensure the user has a valid token file
-    if not os.path.exists(token_path):
-        return jsonify({
-            "message": "Not valid token. Redirecting to authorization.",
-            "redirect_url": url_for('authorize', _external=True)
-        }), 402
+#     # Ensure the user has a valid token file
+#     if not os.path.exists(token_path):
+#         return jsonify({
+#             "message": "Not valid token. Redirecting to authorization.",
+#             "redirect_url": url_for('authorize', _external=True)
+#         }), 402
 
-    # Load credentials from the token file
-    credentials = Credentials.from_authorized_user_file(token_path, SCOPES)
+#     # Load credentials from the token file
+#     credentials = Credentials.from_authorized_user_file(token_path, SCOPES)
 
 
-    if not credentials or not credentials.valid:
-        if credentials and credentials.expired and credentials.refresh_token:
-            credentials.refresh(GoogleAuthRequest())
-            print("Credentials refreshed successfully.")
-        else:
-            return jsonify({
-                "message": "User not authenticated. Redirecting to authorization.",
-                "redirect_url": url_for('authorize', _external=True)
-            }), 404
+#     if not credentials or not credentials.valid:
+#         if credentials and credentials.expired and credentials.refresh_token:
+#             credentials.refresh(GoogleAuthRequest())
+#             print("Credentials refreshed successfully.")
+#         else:
+#             return jsonify({
+#                 "message": "User not authenticated. Redirecting to authorization.",
+#                 "redirect_url": url_for('authorize', _external=True)
+#             }), 404
 
-    # Fetch the user's email as the unique identifier
-    service = build('people', 'v1', credentials=credentials)
-    profile = service.people().get(resourceName='people/me', personFields='emailAddresses').execute()
-    user_email = profile['emailAddresses'][0]['value']
-    print("SERVICE:",service)
+#     # Fetch the user's email as the unique identifier
+#     service = build('people', 'v1', credentials=credentials)
+#     profile = service.people().get(resourceName='people/me', personFields='emailAddresses').execute()
+#     user_email = profile['emailAddresses'][0]['value']
+#     print("SERVICE:",service)
 
     
-    # Process file uploads
-    try:
-        successful_uploads, failed_uploads = [], []
-        print("these are classified_docs:",classified_docs)
-        # Assuming 'classified_docs' exists and contains document information
-        # trying to create a dummy folder
-        print(" called create folder")
-        get_or_create_folder(service, 'DocReck Library Test 1')
-        for doc in classified_docs:
-            if not os.path.exists(doc['url']):
-                failed_uploads.append({"name": doc['name'], "error": "File not found."})
-                continue
+#     # Process file uploads
+#     try:
+#         successful_uploads, failed_uploads = [], []
+#         print("these are classified_docs:",classified_docs)
+#         # Assuming 'classified_docs' exists and contains document information
+#         # trying to create a dummy folder
+#         print(" called create folder")
+#         get_or_create_folder(service, 'DocReck Library Test 1')
+#         for doc in classified_docs:
+#             if not os.path.exists(doc['url']):
+#                 failed_uploads.append({"name": doc['name'], "error": "File not found."})
+#                 continue
 
-            try:
-                drive_file_id = upload_file_to_drive(service, doc['url'], doc['category'], doc['subcategory'])
-                successful_uploads.append({"name": doc['name'], "drive_file_id": drive_file_id})
-            except Exception as e:
-                print(f"Error during file upload to Drive: {str(e)}")
-                failed_uploads.append({"name": doc['name'], "error": str(e)})
+#             try:
+#                 drive_file_id = upload_file_to_drive(service, doc['url'], doc['category'], doc['subcategory'])
+#                 successful_uploads.append({"name": doc['name'], "drive_file_id": drive_file_id})
+#             except Exception as e:
+#                 print(f"Error during file upload to Drive: {str(e)}")
+#                 failed_uploads.append({"name": doc['name'], "error": str(e)})
 
-        if successful_uploads:
-            print(f"Successfully uploaded: {successful_uploads}")
-            return jsonify({"successful_uploads": successful_uploads, "failed_uploads": failed_uploads}), 200
-        else:
-            print(f"No successful uploads.")
-            return jsonify({"message": "No successful uploads.", "failed_uploads": failed_uploads}), 500
+#         if successful_uploads:
+#             print(f"Successfully uploaded: {successful_uploads}")
+#             return jsonify({"successful_uploads": successful_uploads, "failed_uploads": failed_uploads}), 200
+#         else:
+#             print(f"No successful uploads.")
+#             return jsonify({"message": "No successful uploads.", "failed_uploads": failed_uploads}), 500
 
-    except Exception as e:
-        print(f"Error during file upload to Drive: {str(e)}")
-        return jsonify({"message": f"An error occurred: {str(e)}"}), 500
-
-
+#     except Exception as e:
+#         print(f"Error during file upload to Drive: {str(e)}")
+#         return jsonify({"message": f"An error occurred: {str(e)}"}), 500
 
 
-@app.route('/authorize')
-def authorize():
-    """
-    Redirects the user to Google's OAuth 2.0 consent screen with the required scopes.
-    """
-    try:
-        # Creating the OAuth flow with requested scopes
-        flow = Flow.from_client_secrets_file('credentials.json', SCOPES)
-        flow.redirect_uri = url_for('oauth2callback', _external=True)
+
+
+# @app.route('/authorize')
+# def authorize():
+#     """
+#     Redirects the user to Google's OAuth 2.0 consent screen with the required scopes.
+#     """
+#     try:
+#         # Creating the OAuth flow with requested scopes
+#         flow = Flow.from_client_secrets_file('credentials.json', SCOPES)
+#         flow.redirect_uri = url_for('oauth2callback', _external=True)
         
-        # Force re-consent by including the 'prompt' parameter
-        auth_url, _ = flow.authorization_url(prompt='consent', access_type='offline', include_granted_scopes='true')
+#         # Force re-consent by including the 'prompt' parameter
+#         auth_url, _ = flow.authorization_url(prompt='consent', access_type='offline', include_granted_scopes='true')
 
-        return redirect(auth_url)
-    except Exception as e:
-        return jsonify({"message": f"Error initiating authorization: {str(e)}"}), 500
+#         return redirect(auth_url)
+#     except Exception as e:
+#         return jsonify({"message": f"Error initiating authorization: {str(e)}"}), 500
 
 
-@app.route('/oauth2callback')
-def oauth2callback():
-    """
-    Handles the OAuth callback, stores user credentials, and redirects to the frontend classification screen.
-    """
-    try:
-        # Create OAuth flow and fetch token
-        flow = Flow.from_client_secrets_file('credentials.json', SCOPES)
-        flow.redirect_uri = url_for('oauth2callback', _external=True)
-        flow.fetch_token(authorization_response=request.url)
+# @app.route('/oauth2callback')
+# def oauth2callback():
+#     """
+#     Handles the OAuth callback, stores user credentials, and redirects to the frontend classification screen.
+#     """
+#     try:
+#         # Create OAuth flow and fetch token
+#         flow = Flow.from_client_secrets_file('credentials.json', SCOPES)
+#         flow.redirect_uri = url_for('oauth2callback', _external=True)
+#         flow.fetch_token(authorization_response=request.url)
 
-        # Obtain credentials and fetch the user's email
-        credentials = flow.credentials
-        service = build('people', 'v1', credentials=credentials)
-        profile = service.people().get(resourceName='people/me', personFields='emailAddresses').execute()
-        user_email = profile['emailAddresses'][0]['value']
+#         # Obtain credentials and fetch the user's email
+#         credentials = flow.credentials
+#         service = build('people', 'v1', credentials=credentials)
+#         profile = service.people().get(resourceName='people/me', personFields='emailAddresses').execute()
+#         user_email = profile['emailAddresses'][0]['value']
 
-        # Save credentials to a file
-        user_id = user_email.replace('@', '_').replace('.', '_')
-        token_path = f'tokens/{user_id}_token.json'
-        os.makedirs('tokens', exist_ok=True)
-        with open(token_path, 'w') as token_file:
-            token_file.write(credentials.to_json())
+#         # Save credentials to a file
+#         user_id = user_email.replace('@', '_').replace('.', '_')
+#         token_path = f'tokens/{user_id}_token.json'
+#         os.makedirs('tokens', exist_ok=True)
+#         with open(token_path, 'w') as token_file:
+#             token_file.write(credentials.to_json())
 
-        # Save files to Google Drive
-         # Custom function to handle the saving logic
+#         # Save files to Google Drive
+#          # Custom function to handle the saving logic
 
-        # Redirect to the frontend classification screen
-        frontend_url = "http://localhost:5173/classification"
-        response = redirect(frontend_url)
-        print("user email",user_email)
-        response.set_cookie("user_email" ,user_email, httponly=True, secure=False, max_age=60 * 60 * 24 * 365)
-          # Cookie valid for 1 year
-        email = request.cookies.get('user_email')
-        print("cookie",email)
-        # save_files_to_drive(service,classified_docs) 
-        save_todrive()
-        return response
+#         # Redirect to the frontend classification screen
+#         frontend_url = "http://localhost:5173/classification"
+#         response = redirect(frontend_url)
+#         print("user email",user_email)
+#         response.set_cookie("user_email" ,user_email, httponly=True, secure=False, max_age=60 * 60 * 24 * 365)
+#           # Cookie valid for 1 year
+#         email = request.cookies.get('user_email')
+#         print("cookie",email)
+#         # save_files_to_drive(service,classified_docs) 
+#         save_todrive()
+#         return response
 
-    except Exception as e:
-        return jsonify({"message": f"Error during OAuth callback: {str(e)}"}), 500
+#     except Exception as e:
+#         return jsonify({"message": f"Error during OAuth callback: {str(e)}"}), 500
 
 
 
