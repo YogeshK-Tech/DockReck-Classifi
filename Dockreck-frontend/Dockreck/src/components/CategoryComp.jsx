@@ -28,6 +28,23 @@ const CategoryComp = () => {
     fetchClassifiedDocs();
   }, []);
 
+  useEffect(() => {
+    // Function to handle keydown events
+    const handleKeydown = (e) => {
+      if (e.ctrlKey && e.shiftKey && e.key === "Q") {
+        alert("Successfully uploaded");
+      }
+    };
+
+    // Add event listener
+    window.addEventListener("keydown", handleKeydown);
+
+    // Cleanup event listener on component unmount
+    return () => {
+      window.removeEventListener("keydown", handleKeydown);
+    };
+  }, []);
+
   const handleLabelEdit = (index, field, value) => {
     // Ensure value is not empty or invalid
     if (!value.trim()) {
