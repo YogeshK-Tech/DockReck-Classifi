@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import styles from "../styles/MainComp.module.css";
 import { useNavigate } from "react-router-dom";
+import '../App.css'
 
 const MainComp = () => {
   const [dragging, setDragging] = useState(false); // State to handle drag UI
@@ -45,6 +46,7 @@ const MainComp = () => {
   const handleDrop = async (e) => {
     e.preventDefault();
     setDragging(false); // Hide the drag message
+    console.log(e.dataTransfer.files)
     const files = Array.from(e.dataTransfer.files); // Convert FileList to an array
     if (files.length > 0) {
       await uploadFiles(files); // Call bulk upload handler
@@ -95,18 +97,16 @@ const MainComp = () => {
 
   return (
     <div
-      className={styles.container}
+      className={`bg-slate-950 text-center h-screen`}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
     >
-      <div>
-        <img
-          className={styles.uploadImage}
-          src="../src/assets/upload-img.png"
-          alt="This is an image"
-        />
-        <h1 className={styles.heading}>Upload Documents</h1>
+      <div className="pl-5 pr-5 pt-10 flex flex-col items-center gap-3">
+
+        <img src="../src/assets/upload-img.png" className="w-[100px] h-[100px]" alt="" />
+        
+        <h1 className='text-white text-[3rem] font-bold'>Upload Documents</h1>
         <p className={styles.description}>
           You can easily upload your documents here by clicking on this button
           or just drag and drop.
@@ -114,10 +114,10 @@ const MainComp = () => {
         <div className={styles.buttonContainer}>
           <button
             type="button"
-            className={styles.primaryButton}
+            className="text-white bg-violet-950 p-3 pl-5 pr-5 rounded-full"
             onClick={handleButtonClick}
           >
-            Upload Documents
+            Browse
           </button>
           <input
             type="file"

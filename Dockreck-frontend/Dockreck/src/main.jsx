@@ -1,39 +1,27 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { RouterProvider, createBrowserRouter } from "react-router-dom";
+import { BrowserRouter as Router,  } from "react-router-dom";
 import App from "./App.jsx";
-// Importing bootstrap
-import "bootstrap/dist/css/bootstrap.min.css";
 import MainComp from "./components/MainComp.jsx";
 import CategoryComp from "./components/CategoryComp.jsx";
-import LibraryComp from "./components/LibraryComp.jsx";
+import LibraryComp from "./components/History.jsx";
 
-const router = createBrowserRouter([
-  {
-    path: "/",
-    element: <App />,
-    children: [
-      {
-        path: "/",
-        element: <MainComp />,
-      },
-      {
-        path: "/home",
-        element: <MainComp />,
-      },
-      {
-        path: "/classification",
-        element: <CategoryComp />,
-      },
-      {
-        path: "/library",
-        element: <LibraryComp />,
-      },
-    ],
-  },
-]);
+import { ClerkProvider } from '@clerk/clerk-react'
+// Import your Publishable Key
+const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY
+
+if (!PUBLISHABLE_KEY) {
+  throw new Error("Missing Publishable Key")
+}
+
+
 createRoot(document.getElementById("root")).render(
-  <StrictMode>
-    <RouterProvider router={router} />
-  </StrictMode>
+ 
+    <Router>
+    <ClerkProvider publishableKey={PUBLISHABLE_KEY} afterSignOutUrl="/">
+      <App />
+    </ClerkProvider>
+    </Router>
 );
+
+
