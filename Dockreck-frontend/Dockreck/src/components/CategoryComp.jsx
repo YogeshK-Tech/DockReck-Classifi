@@ -18,9 +18,15 @@ const CategoryComp = () => {
           throw new Error("Failed to fetch classified documents.");
         }
         const data = await response.json();
-        setClassifiedDocs(data.docs);
+        // Check if the data contains docs and handle if not
+        if (data && data.docs) {
+          setClassifiedDocs(data.docs);
+        } else {
+          throw new Error("No classified documents found.");
+        }
       } catch (err) {
         setError(err.message);
+        setClassifiedDocs([]); // Ensure classifiedDocs is empty in case of error
       } finally {
         setLoading(false);
       }
@@ -102,12 +108,17 @@ const CategoryComp = () => {
     }
   };
 
+  // Add a check to ensure classifiedDocs is defined and not empty
   if (loading) {
     return <div className={styles.listContainer}>Loading documents...</div>;
   }
 
   if (error) {
     return <div className={styles.listContainer}>Error: {error}</div>;
+  }
+
+  if (!classifiedDocs || classifiedDocs.length === 0) {
+    return <div className={styles.listContainer}>No documents available.</div>;
   }
 
   return (
