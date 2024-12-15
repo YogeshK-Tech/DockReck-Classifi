@@ -1,6 +1,6 @@
-from flask import Flask, request, jsonify, send_file
+from flask import Flask, Request, request, jsonify, send_file
 import os
-
+from flask_cors import CORS
 import pandas as pd
 from werkzeug.utils import secure_filename
 from utils import initial_dataset_creator, train_classifiers, load_model, save_model, classify_text, correct_predictions
@@ -8,10 +8,19 @@ from extract_text import extract_text_from_file
 import global_config
 # Google Drive Functionality Imports
 from googleapiclient.http import MediaFileUpload
+from google.oauth2.credentials import Credentials
+from google_auth_oauthlib.flow import InstalledAppFlow
+from googleapiclient.discovery import build
+from google.auth.transport.requests import Request
+
+
+
+SCOPES = ['https://www.googleapis.com/auth/drive.file']
 
 
 app = Flask(__name__)
-
+# CORS configuration for allowing all origins during development
+CORS(app, resources={r"/*": {"origins": ["http://localhost:5174"]}}, supports_credentials=True)
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
@@ -158,6 +167,35 @@ def update_label():
 
     return jsonify(response), 200
 
+
+@app.route("/save_todrive", methods=["POST"])
+def save_todrive():
+    """This will save classified documents to Google Drive."""
+    try:
+        service = authenticate_google_drive()  # You'll need a function to authenticate with Google Drive
+        save_files_to_drive(service, classified_docs)  # Using the function you already defined
+        return jsonify({"message": "Files uploaded to Google Drive!"}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+def authenticate_google_drive():
+    """Authenticate and return a Google Drive API service object."""
+    creds = None
+    if os.path.exists('token.json'):
+        creds = Credentials.from_authorized_user_file('token.json', SCOPES)
+    if not creds or not creds.valid:
+        if creds and creds.expired and creds.refresh_token:
+            creds.refresh(Request())
+        else:
+            flow = InstalledAppFlow.from_client_secrets_file(
+                'credentials.json', SCOPES)
+            creds = flow.run_local_server(port=5001)
+        # Save the credentials for the next run
+        with open('token.json', 'w') as token:
+            token.write(creds.to_json())
+    service = build('drive', 'v3', credentials=creds)
+    return service
 
 
 # Folder creation helper

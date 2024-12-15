@@ -84,9 +84,10 @@ const CategoryComp = () => {
 
   const handleSaveToLibrary = async () => {
     try {
+      // Send the request to the backend to save files to Google Drive
       const response = await fetch("http://127.0.0.1:5000/save_todrive", {
         method: "POST",
-        credentials: "include",
+        credentials: "include", // Optional: include cookies/session for authentication
       });
 
       if (response.status === 401) {
