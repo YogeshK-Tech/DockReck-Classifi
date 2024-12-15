@@ -1,45 +1,23 @@
 import React from "react";
-import styles from "../styles/NavBar.module.css"; // Import the CSS Module
+import { SignedIn,UserButton } from "@clerk/clerk-react";
+import { useNavigate } from "react-router-dom";
 
 const NavBar = () => {
-  return (
-    <div>
-      <header
-        className={`d-flex flex-wrap py-3 mb-4 border-bottom ${styles.header}`}
-      >
-        <a
-          href="/"
-          className={`d-flex align-items-center mb-3 mb-md-0 me-md-auto text-decoration-none ${styles.logo}`}
-        >
-          <span className="fs-4">DocReck</span>
-        </a>
+  const navigate = useNavigate()
 
-        <ul className={`nav nav-pills ${styles.nav}`}>
-          <li className="nav-item">
-            <a
-              href="#"
-              className={`nav-link active ${styles.navLinkActive}`}
-              aria-current="page"
-            >
-              Home
-            </a>
-          </li>
-          <li className="nav-item">
-            <a href="#" className={`nav-link ${styles.navLink}`}>
-              Uploads
-            </a>
-          </li>
-          <li className="nav-item">
-            <a href="#" className={`nav-link ${styles.navLink}`}>
-              History
-            </a>
-          </li>
-          <li className="nav-item">
-            <a href="#" className={`nav-link ${styles.navLink}`}>
-              About
-            </a>
-          </li>
-        </ul>
+  return (
+    <div className="top-0 overflow-hidden">
+      <header className="w-screen h-[10vh] bg-slate-950 flex justify-evenly pl-10 pr-10 items-center border-b border-gray-600 ">
+        <button className=" text-yellow-500 text-[1.5rem]" onClick={()=>{navigate("/")}}> <a href="/">Dockreck</a>
+        </button>
+        <div className="flex gap-6 text-white">
+          <button onClick={()=>{navigate("/dashboard")}} className="p-2 pl-4 pr-4 rounded-lg hover:bg-slate-800">Home</button>
+          <button onClick={()=>{navigate("/history")}} className="p-2 pl-4 pr-4 rounded-lg hover:bg-slate-800">History</button>
+          <button onClick={()=>{navigate("/about")}} className="p-2 pl-4 pr-4 rounded-lg hover:bg-slate-800 ">About</button>
+        </div>
+        <SignedIn >
+                <UserButton />
+        </SignedIn> 
       </header>
     </div>
   );
