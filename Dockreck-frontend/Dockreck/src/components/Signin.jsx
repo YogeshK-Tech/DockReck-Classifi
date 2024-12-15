@@ -22,25 +22,25 @@ export default function SignIn() {
     return (
         <main className="relative w-screen h-screen bg-black">
 
-            <header className="text-white flex flex-col justify-center items-center">
+            <header className="flex flex-col items-center justify-center text-white">
                 
                     <div className="flex w-[90vw] md:w-[70vw] lg:w-[70vw] p-3 justify-between items-center  relative z-10 ">
                         <h1 className="md:text-[2rem] lg:text-[2rem] text-[1rem ] font-bold text-gray-400">Dockreck</h1>
                             <SignedOut>
                                 <SignInButton afterSignIn={handleSignIn} >
-                                    <button  className=" p-1 border border-slate-700 pl-4 pr-4 rounded-lg bg-slate-950">Get Started</button>
+                                    <button  className="p-1 pl-4 pr-4 border rounded-lg border-slate-700 bg-slate-950">Get Started</button>
                                 </SignInButton>
                             </SignedOut>    
                     </div>
 
                 
-                <div className="flex p-3   relative z-10 w-[90vw] md:w-[50vw] lg:w-[50vw] mt-10 justify-center items-center text-center text-[1rem] md:text-[3.5rem] lg:text-[3.5rem] text-white">
+                <div className="flex p-3   relative z-10 w-[90vw] md:w-[50vw] lg:w-[50vw] mt-10 justify-center items-center text-center text-[1rem] md:text-[3.5rem] lg:text-[3.5rem] text-[#00ADB5] font-bold">
                         Effortless Document Management 
                 </div>
                 <div className="flex p-3 w-[90vw] md:w-[50vw] lg:w-[50vw] relative z-10 mt-5 justify-center items-center text-center text-[1.5rem] text-gray-400">
                 Upload, Preview, and Organize Your Documents in Seconds. Experience smarter categorization and seamless integration with Google Drive.
                 </div>
-                <div className="flex gap-5 mt-10 p-5 bg-transparent backdrop-blur-sm border border-slate-950 rounded-full relative z-10">
+                <div className="relative z-10 flex gap-5 p-5 mt-10 bg-transparent border rounded-full backdrop-blur-sm border-slate-950">
                     <RiLinkedinLine color="white" size={36}></RiLinkedinLine>
                     <RiTwitterLine color="white" size={36}></RiTwitterLine>
                     <RiFacebookFill color="white" size={36}></RiFacebookFill>

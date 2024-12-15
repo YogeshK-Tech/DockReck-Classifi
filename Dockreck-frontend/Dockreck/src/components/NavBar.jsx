@@ -6,7 +6,7 @@ const NavBar = () => {
   const navigate = useNavigate()
 
   return (
-    <div className="overflow-hidden top-0">
+    <div className="top-0 overflow-hidden">
       <header className="w-screen h-[10vh] bg-slate-950 flex justify-evenly pl-10 pr-10 items-center border-b border-gray-600 ">
         <button className=" text-yellow-500 text-[1.5rem]" onClick={()=>{navigate("/")}}> <a href="/">Dockreck</a>
         </button>
