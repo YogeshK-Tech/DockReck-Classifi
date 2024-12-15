@@ -17,10 +17,7 @@ const router = createBrowserRouter([
         path: "/",
         element: <MainComp />,
       },
-      {
-        path: "/home",
-        element: <MainComp />,
-      },
+
       {
         path: "/classification",
         element: <CategoryComp />,

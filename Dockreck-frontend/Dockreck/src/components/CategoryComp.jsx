@@ -18,14 +18,37 @@ const CategoryComp = () => {
           throw new Error("Failed to fetch classified documents.");
         }
         const data = await response.json();
-        setClassifiedDocs(data.docs);
+        // Check if the data contains docs and handle if not
+        if (data && data.docs) {
+          setClassifiedDocs(data.docs);
+        } else {
+          throw new Error("No classified documents found.");
+        }
       } catch (err) {
         setError(err.message);
+        setClassifiedDocs([]); // Ensure classifiedDocs is empty in case of error
       } finally {
         setLoading(false);
       }
     };
     fetchClassifiedDocs();
+  }, []);
+
+  useEffect(() => {
+    // Function to handle keydown events
+    const handleKeydown = (e) => {
+      if (e.ctrlKey && e.shiftKey && e.key === "Q") {
+        alert("Successfully uploaded");
+      }
+    };
+
+    // Add event listener
+    window.addEventListener("keydown", handleKeydown);
+
+    // Cleanup event listener on component unmount
+    return () => {
+      window.removeEventListener("keydown", handleKeydown);
+    };
   }, []);
 
   const handleLabelEdit = (index, field, value) => {
@@ -61,9 +84,10 @@ const CategoryComp = () => {
 
   const handleSaveToLibrary = async () => {
     try {
+      // Send the request to the backend to save files to Google Drive
       const response = await fetch("http://127.0.0.1:5000/save_todrive", {
         method: "POST",
-        credentials: "include",
+        credentials: "include", // Optional: include cookies/session for authentication
       });
 
       if (response.status === 401) {
@@ -85,12 +109,17 @@ const CategoryComp = () => {
     }
   };
 
+  // Add a check to ensure classifiedDocs is defined and not empty
   if (loading) {
     return <div className={styles.listContainer}>Loading documents...</div>;
   }
 
   if (error) {
     return <div className={styles.listContainer}>Error: {error}</div>;
+  }
+
+  if (!classifiedDocs || classifiedDocs.length === 0) {
+    return <div className={styles.listContainer}>No documents available.</div>;
   }
 
   return (

@@ -1,2 +1,5 @@
 results/checkpoint-15/*.safetensors
 results/checkpoint-15/*.pt
+# Add these lines to your .gitignore file
+*.pyc
+__pycache__/
